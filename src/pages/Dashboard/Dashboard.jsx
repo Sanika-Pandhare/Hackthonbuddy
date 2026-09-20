@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -9,1043 +9,405 @@ import {
   MessageSquare,
   Bell,
   User,
-  ClipboardList,
-  CalendarDays,
-  Settings,
   Search,
-  ChevronDown,
-  MoreHorizontal,
   Plus,
-  CheckCircle,
-  Sparkles,
   Lightbulb,
-  Target,
-  Wrench,
   TrendingUp,
   ArrowRight,
   UserPlus,
+  ExternalLink,
+  Sparkles,
+  CheckCircle,
+  Clock,
+  ShieldCheck,
+  Zap
 } from "lucide-react";
-
+import { useApp } from "../../context/AppContext";
 import "./Dashboard.css";
 
 function Dashboard() {
-  const currentUser =
-    JSON.parse(
-      localStorage.getItem("hackathonBuddyCurrentUser")
-    ) || {};
+  const navigate = useNavigate();
+  const {
+    currentUser,
+    hackathons,
+    registeredHackathons,
+    toggleHackathonRegistration,
+    teamMembers,
+    projects,
+    notifications
+  } = useApp();
 
-  const userName =
-    currentUser.fullName ||
-    currentUser.name ||
-    "Hackathon User";
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const userRole =
-    currentUser.primaryRole ||
-    currentUser.role ||
-    "Full Stack";
-
-  const firstLetter =
-    userName.charAt(0).toUpperCase();
-
-  const skills = currentUser.techSkills
-    ? currentUser.techSkills
-        .split(",")
-        .map((skill) => skill.trim())
-        .filter(Boolean)
-    : [];
-
-  const domains = currentUser.projectDomains
-    ? currentUser.projectDomains
-        .split(",")
-        .map((domain) => domain.trim())
-        .filter(Boolean)
-    : [];
+  const userName = currentUser?.fullName || "Developer";
+  const userRole = currentUser?.primaryRole || currentUser?.role || "Full Stack Developer";
+  const firstLetter = userName.charAt(0).toUpperCase();
 
   const menuItems = [
-    {
-      label: "Dashboard",
-      icon: LayoutDashboard,
-      path: "/dashboard",
-      active: true,
-    },
-    {
-      label: "Hackathons",
-      icon: Trophy,
-      path: "/hackathons",
-    },
-    {
-      label: "Teams",
-      icon: Users,
-      path: "/teams",
-    },
-    {
-      label: "AI Hub",
-      icon: Brain,
-      path: "/ai-hub",
-    },
-    {
-      label: "Projects",
-      icon: FolderKanban,
-      path: "/projects",
-    },
-    {
-      label: "Chat",
-      icon: MessageSquare,
-      path: "/chat",
-    },
-    {
-      label: "Notifications",
-      icon: Bell,
-      path: "/notifications",
-    },
-    {
-      label: "Profile",
-      icon: User,
-      path: "/profile",
-    },
-    {
-      label: "My Registrations",
-      icon: ClipboardList,
-      path: "/registrations",
-    },
-    {
-      label: "Calendar",
-      icon: CalendarDays,
-      path: "/calendar",
-    },
-    {
-      label: "Settings",
-      icon: Settings,
-      path: "/settings",
-    },
+    { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard", active: true },
+    { label: "Admin Console", icon: ShieldCheck, path: "/admin" },
+    { label: "Hackathons", icon: Trophy, path: "/hackathons" },
+    { label: "Teams", icon: Users, path: "/teams" },
+    { label: "AI Hub", icon: Brain, path: "/ai-hub" },
+    { label: "Projects", icon: FolderKanban, path: "/projects" },
+    { label: "Chat", icon: MessageSquare, path: "/chat" },
+    { label: "Notifications", icon: Bell, path: "/notifications" },
+    { label: "Profile", icon: User, path: "/profile" },
   ];
-
-  const handleNavigation = (path) => {
-    console.log("Navigate:", path);
-    window.location.href = path;
-  };
 
   const stats = [
     {
       icon: Trophy,
-      value: "12",
+      value: hackathons.length.toString(),
       title: "Hackathons",
-      subtitle: "Registered: 3",
+      subtitle: `Registered: ${registeredHackathons.length}`,
       type: "purple",
     },
     {
       icon: Users,
-      value: "2",
-      title: "My Teams",
-      subtitle: "Active Teams",
+      value: teamMembers.length.toString(),
+      title: "Team Members",
+      subtitle: "Active Squad",
       type: "green",
     },
     {
-      icon: Lightbulb,
-      value: "8",
-      title: "Project Ideas",
-      subtitle: "Generated",
+      icon: FolderKanban,
+      value: projects.length.toString(),
+      title: "Projects",
+      subtitle: "In Workspace",
       type: "yellow",
     },
     {
       icon: TrendingUp,
-      value: "87%",
+      value: "92%",
       title: "Skill Match",
-      subtitle: "Average Score",
+      subtitle: "Squad Compatibility",
       type: "blue",
     },
   ];
 
-  const hackathons = [
-    {
-      title: "AI Innovation Challenge 2024",
-      category: "AI/ML",
-      date: "18 Aug 2024",
-      prize: "₹5,00,000",
-      match: "92%",
-      type: "ai",
-    },
-    {
-      title: "Smart City Hackathon",
-      category: "Smart City",
-      date: "25 Aug 2024",
-      prize: "₹3,00,000",
-      match: "86%",
-      type: "city",
-    },
-    {
-      title: "FinTech Challenge",
-      category: "FinTech",
-      date: "02 Sep 2024",
-      prize: "₹4,00,000",
-      match: "81%",
-      type: "fintech",
-    },
-  ];
-
-  const teammates = [
-    {
-      name: userName,
-      role: userRole,
-      letter: firstLetter,
-      you: true,
-    },
-    {
-      name: "Priya Singh",
-      role: "UI/UX Designer",
-      letter: "P",
-    },
-    {
-      name: "Rohan Mehta",
-      role: "ML Developer",
-      letter: "R",
-    },
-    {
-      name: "Aman Khan",
-      role: "DevOps Engineer",
-      letter: "A",
-    },
-  ];
-
-  const upcomingHackathons = [
-    {
-      short: "AI",
-      title: "AI Innovation Challenge",
-      date: "18 Aug 2024",
-      status: "Registered",
-      statusType: "registered",
-    },
-    {
-      short: "SC",
-      title: "Smart City Hackathon",
-      date: "25 Aug 2024",
-      status: "Register",
-      statusType: "register",
-    },
-    {
-      short: "FT",
-      title: "FinTech Challenge",
-      date: "02 Sep 2024",
-      status: "Register",
-      statusType: "register",
-    },
-  ];
-
-  const activities = [
-    {
-      icon: CheckCircle,
-      text: "You registered for AI Innovation Challenge",
-      time: "2 hours ago",
-      type: "success",
-    },
-    {
-      icon: Users,
-      text: "Priya Singh accepted your team invite",
-      time: "5 hours ago",
-      type: "purple",
-    },
-    {
-      icon: Trophy,
-      text: "New teammate match found: 92% compatible",
-      time: "1 day ago",
-      type: "yellow",
-    },
-    {
-      icon: Lightbulb,
-      text: "Project idea generated: AI Study Assistant",
-      time: "1 day ago",
-      type: "blue",
-    },
-    {
-      icon: MessageSquare,
-      text: "New message in CodeCrafters team",
-      time: "2 days ago",
-      type: "green",
-    },
-  ];
+  const filteredHackathons = hackathons.filter(
+    (h) =>
+      h.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      h.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="dashboard-page">
-
-      {/* =====================================================
-          SIDEBAR
-          ===================================================== */}
-
+      {/* SIDEBAR */}
       <aside className="dashboard-sidebar">
-
-        {/* LOGO */}
-
         <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">
-            🚀
-          </div>
-
+          <div className="sidebar-logo-icon">🚀</div>
           <div className="sidebar-logo-text">
-            Hackathon
-            <span>Buddy</span>
+            Hackathon<span>Buddy</span>
           </div>
         </div>
 
-
-        {/* MENU */}
-
         <nav className="sidebar-menu">
-
-          {menuItems.map(
-            ({
-              label,
-              icon: Icon,
-              path,
-              active,
-            }) => (
-
-              <button
-                key={label}
-                type="button"
-                className={`sidebar-menu-item ${
-                  active ? "active" : ""
-                }`}
-                onClick={() =>
-                  handleNavigation(path)
-                }
-              >
-
-                <Icon size={21} />
-
-                <span>
-                  {label}
-                </span>
-
-              </button>
-
-            )
-          )}
-
+          {menuItems.map(({ label, icon: Icon, path, active }) => (
+            <button
+              key={label}
+              type="button"
+              className={`sidebar-menu-item ${active ? "active" : ""}`}
+              onClick={() => navigate(path)}
+            >
+              <Icon size={19} />
+              <span>{label}</span>
+            </button>
+          ))}
         </nav>
 
-        {/* IMPORTANT:
-            NO PURPLE BOTTOM CARD HERE.
-            SIDEBAR ENDS AFTER SETTINGS.
-        */}
-
+        <div className="sidebar-bottom-badge" style={{
+          margin: "auto 12px 16px",
+          padding: "14px",
+          background: "linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(34, 211, 238, 0.1))",
+          border: "1px solid rgba(139, 92, 246, 0.3)",
+          borderRadius: "12px",
+          textAlign: "center"
+        }}>
+          <Sparkles size={20} color="#a78bfa" style={{ marginBottom: "6px" }} />
+          <h4 style={{ color: "#f8fafc", fontSize: "13px", margin: "0 0 4px" }}>AI Engine v2.4</h4>
+          <p style={{ color: "#94a3b8", fontSize: "11px", margin: "0 0 10px" }}>Active real-time teammate matching</p>
+          <button
+            onClick={() => navigate("/ai-hub")}
+            style={{
+              width: "100%",
+              padding: "7px 10px",
+              background: "#7c3aed",
+              border: "none",
+              borderRadius: "6px",
+              color: "white",
+              fontSize: "11.5px",
+              fontWeight: "600",
+              cursor: "pointer"
+            }}
+          >
+            Launch AI Hub
+          </button>
+        </div>
       </aside>
 
-
-      {/* =====================================================
-          MAIN AREA
-          ===================================================== */}
-
+      {/* MAIN CONTENT AREA */}
       <main className="dashboard-main">
-
-
-        {/* ===================================================
-            TOP HEADER
-            =================================================== */}
-
+        {/* SUBHEADER & SEARCH */}
         <header className="dashboard-header">
-
           <div className="header-left">
-
-            <button
-              className="mobile-menu-button"
-              type="button"
-            >
-              ☰
-            </button>
-
-            <h1>
-              Dashboard
-            </h1>
-
+            <h1>Dashboard Overview</h1>
+            <p style={{ color: "#64748b", fontSize: "13px", margin: "2px 0 0" }}>
+              Welcome back, {userName} • {userRole}
+            </p>
           </div>
 
-
-          {/* SEARCH */}
-
           <div className="dashboard-search">
-
+            <Search size={18} />
             <input
               type="text"
               placeholder="Search hackathons, teams, skills..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-
-            <Search size={21} />
-
           </div>
-
-
-          {/* HEADER RIGHT */}
-
-          <div className="header-right">
-
-            <button
-              className="header-icon-button"
-              type="button"
-            >
-              <Bell size={22} />
-
-              <span className="notification-count">
-                5
-              </span>
-            </button>
-
-
-            <button
-              className="header-icon-button"
-              type="button"
-            >
-              <MessageSquare size={22} />
-
-              <span className="notification-count">
-                3
-              </span>
-            </button>
-
-
-            <div className="header-profile">
-
-              <div className="header-avatar">
-                {firstLetter}
-              </div>
-
-              <div className="header-user-info">
-
-                <strong>
-                  {userName}
-                </strong>
-
-                <span>
-                  {userRole}
-                </span>
-
-              </div>
-
-              <ChevronDown size={18} />
-
-            </div>
-
-          </div>
-
         </header>
 
-
-        {/* ===================================================
-            DASHBOARD CONTENT
-            =================================================== */}
-
         <div className="dashboard-content">
-
-
-          {/* WELCOME */}
-
+          {/* WELCOME HERO */}
           <section className="welcome-section">
-
             <div className="welcome-content">
-
               <h2>
-                Good Evening,{" "}
-                {userName}
-                ! 👋
+                Good Day, {currentUser?.firstName || userName.split(" ")[0]}! 👋
               </h2>
-
               <p>
-                Discover hackathons, build your dream
-                team,
-                <br />
-                and create innovative solutions.
+                Discover top hackathons, build balanced teams with AI matching,
+                and ship winning solutions together.
               </p>
 
-
               <div className="welcome-buttons">
-
                 <button
                   type="button"
                   className="primary-action"
-                  onClick={() =>
-                    handleNavigation("/hackathons")
-                  }
+                  onClick={() => navigate("/hackathons")}
                 >
-                  <Search size={18} />
-                  Find Hackathons
+                  <Trophy size={18} />
+                  Explore Hackathons
                 </button>
-
 
                 <button
                   type="button"
                   className="secondary-action"
-                  onClick={() =>
-                    handleNavigation("/matching")
-                  }
+                  onClick={() => navigate("/teams")}
                 >
                   <UserPlus size={18} />
                   Find Teammates
                 </button>
 
+                <button
+                  type="button"
+                  className="secondary-action"
+                  onClick={() => navigate("/ai-hub")}
+                  style={{ background: "rgba(34, 211, 238, 0.12)", borderColor: "rgba(34, 211, 238, 0.35)", color: "#38bdf8" }}
+                >
+                  <Brain size={18} />
+                  AI Hub Tools
+                </button>
               </div>
-
             </div>
-
 
             <div className="welcome-illustration">
-
-              <div className="illustration-person">
-                👨‍💻
-              </div>
-
-              <div className="illustration-person second">
-                👩‍💻
-              </div>
-
-              <div className="illustration-person third">
-                👨‍💻
-              </div>
-
+              <div className="illustration-person">👨‍💻</div>
+              <div className="illustration-person second">👩‍💻</div>
+              <div className="illustration-person third">🚀</div>
             </div>
-
           </section>
 
-
-          {/* =================================================
-              STATISTICS
-              ================================================= */}
-
+          {/* STATISTICS GRID */}
           <section className="stats-grid">
-
-            {stats.map(
-              ({
-                icon: Icon,
-                value,
-                title,
-                subtitle,
-                type,
-              }) => (
-
-                <div
-                  className={`stat-card ${type}`}
-                  key={title}
-                >
-
-                  <div className="stat-icon">
-                    <Icon size={24} />
-                  </div>
-
-                  <strong className="stat-value">
-                    {value}
-                  </strong>
-
-                  <span className="stat-title">
-                    {title}
-                  </span>
-
-                  <span className="stat-subtitle">
-                    {subtitle}
-                  </span>
-
-                  <div className="stat-chart">
-                    ╱╲╱╲╱╲
-                  </div>
-
+            {stats.map(({ icon: Icon, value, title, subtitle, type }) => (
+              <div className={`stat-card ${type}`} key={title}>
+                <div className="stat-icon">
+                  <Icon size={24} />
                 </div>
-
-              )
-            )}
-
+                <strong className="stat-value">{value}</strong>
+                <span className="stat-title">{title}</span>
+                <span className="stat-subtitle">{subtitle}</span>
+                <div className="stat-chart">╱╲╱╲╱╲</div>
+              </div>
+            ))}
           </section>
 
-
-          {/* =================================================
-              RECOMMENDED + AI HUB
-              ================================================= */}
-
+          {/* MIDDLE GRID: RECOMMENDED + AI HUB */}
           <section className="middle-grid">
-
-
             {/* RECOMMENDED HACKATHONS */}
-
             <div className="dashboard-panel">
-
               <div className="panel-header">
-
-                <h2>
-                  Recommended Hackathons
-                </h2>
-
+                <h2>Recommended Hackathons</h2>
                 <button
                   type="button"
-                  onClick={() =>
-                    handleNavigation("/hackathons")
-                  }
+                  onClick={() => navigate("/hackathons")}
                 >
-                  View All
+                  View All ({hackathons.length})
                 </button>
-
               </div>
-
 
               <div className="hackathon-cards">
-
-                {hackathons.map(
-                  (hackathon) => (
-
-                    <div
-                      className="hackathon-card"
-                      key={hackathon.title}
-                    >
-
-                      <div
-                        className={`hackathon-image ${hackathon.type}`}
-                      >
-                        {hackathon.type === "ai" &&
-                          "AI"}
-
-                        {hackathon.type === "city" &&
-                          "CITY"}
-
-                        {hackathon.type === "fintech" &&
-                          "FINTECH"}
+                {filteredHackathons.slice(0, 3).map((hackathon) => {
+                  const isRegistered = registeredHackathons.includes(hackathon.id);
+                  return (
+                    <div className="hackathon-card" key={hackathon.id}>
+                      <div className={`hackathon-image ${hackathon.type || "ai"}`}>
+                        {hackathon.icon || "🏆"}
                       </div>
 
+                      <h3>{hackathon.title}</h3>
+                      <span className="category-tag">{hackathon.category}</span>
 
-                      <h3>
-                        {hackathon.title}
-                      </h3>
-
-
-                      <span className="category-tag">
-                        {hackathon.category}
-                      </span>
-
-
-                      <p>
-                        📅 {hackathon.date}
-                      </p>
-
-                      <p>
-                        Prize Pool: {hackathon.prize}
-                      </p>
-
+                      <p>📅 {hackathon.date} • {hackathon.location}</p>
+                      <p>Prize Pool: <strong>{hackathon.prize}</strong></p>
 
                       <div className="hackathon-footer">
-
-                        <strong>
-                          {hackathon.match} Match
-                        </strong>
-
+                        <strong>{hackathon.match}% Match</strong>
                         <button
                           type="button"
+                          className={isRegistered ? "registered-btn" : ""}
+                          style={isRegistered ? { background: "#10b981", color: "white", borderColor: "#10b981" } : {}}
+                          onClick={() => toggleHackathonRegistration(hackathon.id)}
                         >
-                          View Details
+                          {isRegistered ? "✓ Registered" : "Register Now"}
                         </button>
-
                       </div>
-
                     </div>
-
-                  )
-                )}
-
+                  );
+                })}
               </div>
-
             </div>
 
-
-            {/* AI HUB */}
-
+            {/* AI HUB SHORTCUTS */}
             <div className="dashboard-panel">
-
               <div className="panel-header">
-
-                <h2>
-                  AI Hub
-                </h2>
-
+                <h2>AI Innovation Hub</h2>
+                <button type="button" onClick={() => navigate("/ai-hub")}>
+                  Open Hub →
+                </button>
               </div>
-
 
               <div className="ai-hub-grid">
-
-
-                <div className="ai-card purple">
-
-                  <div className="ai-card-icon">
-                    👥
-                  </div>
-
-                  <h3>
-                    AI Teammate
-                    <br />
-                    Matching
-                  </h3>
-
-                  <p>
-                    Find the perfect teammates
-                    based on skills and interests.
-                  </p>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handleNavigation("/matching")
-                    }
-                  >
-                    Find Teammates
-                  </button>
-
+                <div className="ai-card purple" onClick={() => navigate("/ai-hub")}>
+                  <div className="ai-card-icon">👥</div>
+                  <h3>AI Teammate<br />Matching</h3>
+                  <p>Find the perfect teammates based on skills and domain synergy.</p>
+                  <button type="button">Find Teammates</button>
                 </div>
 
-
-                <div className="ai-card green">
-
-                  <div className="ai-card-icon">
-                    📊
-                  </div>
-
-                  <h3>
-                    Skill Gap
-                    <br />
-                    Analysis
-                  </h3>
-
-                  <p>
-                    Analyze your team skills
-                    and discover missing skills.
-                  </p>
-
-                  <button
-                    type="button"
-                  >
-                    Analyze Team
-                  </button>
-
+                <div className="ai-card green" onClick={() => navigate("/ai-hub")}>
+                  <div className="ai-card-icon">📊</div>
+                  <h3>Skill Gap<br />Analysis</h3>
+                  <p>Analyze team strengths and uncover missing critical skills.</p>
+                  <button type="button">Analyze Team</button>
                 </div>
 
-
-                <div className="ai-card yellow">
-
-                  <div className="ai-card-icon">
-                    💡
-                  </div>
-
-                  <h3>
-                    Project Idea
-                    <br />
-                    Generator
-                  </h3>
-
-                  <p>
-                    Get AI-powered project ideas
-                    for your next hackathon.
-                  </p>
-
-                  <button
-                    type="button"
-                  >
-                    Generate Ideas
-                  </button>
-
+                <div className="ai-card yellow" onClick={() => navigate("/ai-hub")}>
+                  <div className="ai-card-icon">💡</div>
+                  <h3>Project Idea<br />Generator</h3>
+                  <p>Generate winning AI project prompts tailored to your stack.</p>
+                  <button type="button">Generate Ideas</button>
                 </div>
-
               </div>
-
             </div>
-
           </section>
 
-
-          {/* =================================================
-              BOTTOM GRID
-              ================================================= */}
-
+          {/* BOTTOM GRID: MY TEAM + RECENT ACTIVITY */}
           <section className="bottom-grid">
-
-
             {/* MY TEAM */}
-
             <div className="dashboard-panel team-panel">
-
               <div className="panel-header">
-
-                <h2>
-                  My Team - CodeCrafters
-                </h2>
-
-                <button
-                  type="button"
-                >
-                  View Team
+                <h2>My Team ({teamMembers.length} Members)</h2>
+                <button type="button" onClick={() => navigate("/teams")}>
+                  Manage Team
                 </button>
-
               </div>
 
-
               <div className="team-members">
-
-                {teammates.map(
-                  (member) => (
-
-                    <div
-                      className="team-member"
-                      key={member.name}
-                    >
-
-                      <div className="team-avatar">
-                        {member.letter}
-                      </div>
-
-                      <strong>
-                        {member.name}
-                      </strong>
-
-                      <span>
-                        {member.role}
-                      </span>
-
-                      {member.you && (
-                        <small>
-                          You
-                        </small>
-                      )}
-
-                    </div>
-
-                  )
-                )}
-
+                {teamMembers.map((member) => (
+                  <div className="team-member" key={member.id}>
+                    <div className="team-avatar">{member.letter || member.name.charAt(0)}</div>
+                    <strong>{member.name}</strong>
+                    <span>{member.role}</span>
+                    {member.isYou && <small>You</small>}
+                  </div>
+                ))}
 
                 <button
                   type="button"
                   className="add-member"
+                  onClick={() => navigate("/teams")}
                 >
-                  <Plus size={27} />
-                  <span>
-                    Add Member
-                  </span>
+                  <Plus size={24} />
+                  <span>Add Member</span>
                 </button>
-
               </div>
-
 
               <div className="team-divider" />
 
-
               <div className="skill-coverage">
-
                 <div className="coverage-header">
-
-                  <strong>
-                    Team Skill Coverage
-                  </strong>
-
-                  <strong>
-                    82%
-                  </strong>
-
+                  <strong>Squad Skill Coverage</strong>
+                  <strong style={{ color: "#10b981" }}>88%</strong>
                 </div>
-
                 <div className="progress-bar">
-
-                  <div
-                    className="progress-value"
-                    style={{
-                      width: "82%",
-                    }}
-                  />
-
+                  <div className="progress-value" style={{ width: "88%" }} />
                 </div>
-
               </div>
 
-
               <div className="missing-skills">
-
-                <strong>
-                  Missing Skills
-                </strong>
-
+                <strong>Recommended Additions</strong>
                 <div className="skill-tags">
-
-                  <span>
-                    Docker
-                  </span>
-
-                  <span>
-                    AWS
-                  </span>
-
-                  <span>
-                    Kubernetes
-                  </span>
-
+                  <span>Docker</span>
+                  <span>AWS</span>
+                  <span>Kubernetes</span>
                 </div>
-
-
                 <button
                   type="button"
                   className="skill-gap-button"
+                  onClick={() => navigate("/ai-hub")}
                 >
-                  Skill Gap Analysis
+                  Run Full Skill Gap Analysis
                 </button>
-
               </div>
-
             </div>
 
-
-            {/* UPCOMING */}
-
+            {/* RECENT NOTIFICATIONS & ACTIVITY */}
             <div className="dashboard-panel">
-
               <div className="panel-header">
-
-                <h2>
-                  Upcoming Hackathons
-                </h2>
-
-                <button
-                  type="button"
-                >
-                  View Calendar
+                <h2>Recent Activity</h2>
+                <button type="button" onClick={() => navigate("/notifications")}>
+                  View All ({notifications.length})
                 </button>
-
               </div>
-
-
-              <div className="upcoming-list">
-
-                {upcomingHackathons.map(
-                  (item) => (
-
-                    <div
-                      className="upcoming-item"
-                      key={item.title}
-                    >
-
-                      <div className="upcoming-icon">
-                        {item.short}
-                      </div>
-
-
-                      <div className="upcoming-info">
-
-                        <strong>
-                          {item.title}
-                        </strong>
-
-                        <span>
-                          📅 {item.date}
-                        </span>
-
-                      </div>
-
-
-                      {item.statusType ===
-                      "registered" ? (
-
-                        <span className="registered-status">
-                          ✓ Registered
-                        </span>
-
-                      ) : (
-
-                        <button
-                          type="button"
-                          className="register-button"
-                        >
-                          Register
-                        </button>
-
-                      )}
-
-                    </div>
-
-                  )
-                )}
-
-              </div>
-
-
-              <button
-                type="button"
-                className="see-all-button"
-                onClick={() =>
-                  handleNavigation("/hackathons")
-                }
-              >
-                See All Hackathons
-                <ArrowRight size={18} />
-              </button>
-
-            </div>
-
-
-            {/* RECENT ACTIVITY */}
-
-            <div className="dashboard-panel">
-
-              <div className="panel-header">
-
-                <h2>
-                  Recent Activity
-                </h2>
-
-                <button
-                  type="button"
-                >
-                  View All
-                </button>
-
-              </div>
-
 
               <div className="activity-list">
-
-                {activities.map(
-                  ({
-                    icon: Icon,
-                    text,
-                    time,
-                    type,
-                  }) => (
-
-                    <div
-                      className="activity-item"
-                      key={text}
-                    >
-
-                      <div
-                        className={`activity-icon ${type}`}
-                      >
-                        <Icon size={18} />
-                      </div>
-
-
-                      <div className="activity-content">
-
-                        <strong>
-                          {text}
-                        </strong>
-
-                        <span>
-                          {time}
-                        </span>
-
-                      </div>
-
+                {notifications.slice(0, 5).map((notif) => (
+                  <div
+                    className="activity-item"
+                    key={notif.id}
+                    onClick={() => navigate(notif.route || "/notifications")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div className={`activity-icon ${notif.type}`}>
+                      {notif.icon || <Bell size={18} />}
                     </div>
-
-                  )
-                )}
-
+                    <div className="activity-content">
+                      <strong>{notif.title}</strong>
+                      <p style={{ margin: "2px 0 0", color: "#64748b", fontSize: "12px" }}>
+                        {notif.message}
+                      </p>
+                      <span>{notif.time}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
-
             </div>
-
           </section>
-
         </div>
-
       </main>
-
     </div>
   );
 }

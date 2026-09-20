@@ -12,280 +12,216 @@ import {
   FolderKanban,
   Calendar,
   CheckCircle2,
+  Phone,
+  Globe,
+  Sparkles
 } from "lucide-react";
-
+import { useApp } from "../../context/AppContext";
 import "./Profile.css";
 
-const initialProfile = {
-  firstName: "Sanika",
-  lastName: "Haridas Pandhare",
-  email: "sanika@example.com",
-  phone: "+91 98765 43210",
-  role: "Full Stack Developer",
-  location: "India",
-  bio: "Full Stack Developer interested in building innovative products and collaborating on hackathon projects.",
-  github: "https://github.com/",
-  linkedin: "https://linkedin.com/",
-  skills: [
-    "React",
-    "JavaScript",
-    "Node.js",
-    "Spring Boot",
-    "PostgreSQL",
-  ],
-  domains: [
-    "AI / ML",
-    "Web Development",
-    "Healthcare",
-  ],
-};
-
-const projects = [
-  {
-    name: "AI Study Assistant",
-    domain: "AI / Education",
-    progress: 72,
-    status: "Active",
-  },
-  {
-    name: "Smart Healthcare Platform",
-    domain: "Healthcare / AI",
-    progress: 45,
-    status: "Active",
-  },
-  {
-    name: "Hackathon Buddy",
-    domain: "Web Platform",
-    progress: 82,
-    status: "Active",
-  },
-];
-
-const stats = [
-  {
-    icon: Trophy,
-    value: "12",
-    label: "Hackathons",
-    color: "purple",
-  },
-  {
-    icon: Users,
-    value: "2",
-    label: "Teams",
-    color: "green",
-  },
-  {
-    icon: FolderKanban,
-    value: "3",
-    label: "Projects",
-    color: "orange",
-  },
-  {
-    icon: Code2,
-    value: "87%",
-    label: "Skill Match",
-    color: "blue",
-  },
-];
-
 function Profile() {
-  const [profile, setProfile] = useState(initialProfile);
-  const [formData, setFormData] = useState(initialProfile);
+  const {
+    currentUser,
+    updateProfile,
+    hackathons,
+    registeredHackathons,
+    teamMembers,
+    projects,
+    addNotification
+  } = useApp();
+
   const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: currentUser?.fullName || "Sanika Haridas Pandhare",
+    firstName: currentUser?.firstName || "Sanika",
+    lastName: currentUser?.lastName || "Pandhare",
+    email: currentUser?.email || "sanika@example.com",
+    phone: currentUser?.phone || "+91 98765 43210",
+    role: currentUser?.primaryRole || currentUser?.role || "Full Stack Developer",
+    location: currentUser?.location || "Pune, India",
+    bio: currentUser?.bio || "Full Stack Developer passionate about building high-impact web apps, AI integrations, and winning hackathons.",
+    githubUrl: currentUser?.githubUrl || "https://github.com/sanikapandhare",
+    linkedinUrl: currentUser?.linkedinUrl || "https://linkedin.com/in/sanikapandhare",
+    techSkills: currentUser?.techSkills || "React, Node.js, Spring Boot, JavaScript, PostgreSQL, Python",
+    projectDomains: currentUser?.projectDomains || "AI / ML, Web Development, HealthTech, FinTech"
+  });
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-
-    setFormData((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
-  };
-
-  const handleSkillsChange = (event) => {
-    setFormData((previous) => ({
-      ...previous,
-      skills: event.target.value
-        .split(",")
-        .map((skill) => skill.trim())
-        .filter(Boolean),
-    }));
-  };
-
-  const handleDomainsChange = (event) => {
-    setFormData((previous) => ({
-      ...previous,
-      domains: event.target.value
-        .split(",")
-        .map((domain) => domain.trim())
-        .filter(Boolean),
-    }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleEdit = () => {
-    setFormData(profile);
+    setFormData({
+      fullName: currentUser?.fullName || "",
+      firstName: currentUser?.firstName || "",
+      lastName: currentUser?.lastName || "",
+      email: currentUser?.email || "",
+      phone: currentUser?.phone || "",
+      role: currentUser?.primaryRole || currentUser?.role || "",
+      location: currentUser?.location || "",
+      bio: currentUser?.bio || "",
+      githubUrl: currentUser?.githubUrl || "",
+      linkedinUrl: currentUser?.linkedinUrl || "",
+      techSkills: currentUser?.techSkills || "",
+      projectDomains: currentUser?.projectDomains || ""
+    });
     setIsEditing(true);
   };
 
   const handleCancel = () => {
-    setFormData(profile);
     setIsEditing(false);
   };
 
   const handleSave = () => {
-    setProfile(formData);
+    const skillsArr = formData.techSkills.split(",").map((s) => s.trim()).filter(Boolean);
+    const domainsArr = formData.projectDomains.split(",").map((d) => d.trim()).filter(Boolean);
+
+    updateProfile({
+      ...formData,
+      primaryRole: formData.role,
+      skills: skillsArr,
+      domains: domainsArr
+    });
+
+    addNotification({
+      type: "system",
+      icon: "⚙️",
+      title: "Profile Updated",
+      message: "Your profile, stack, and domain preferences were saved.",
+      action: "View Profile",
+      route: "/profile"
+    });
+
     setIsEditing(false);
   };
 
+  const skillsList = currentUser?.skills || formData.techSkills.split(",").map((s) => s.trim()).filter(Boolean);
+  const domainsList = currentUser?.domains || formData.projectDomains.split(",").map((d) => d.trim()).filter(Boolean);
+
+  const stats = [
+    {
+      icon: Trophy,
+      value: `${registeredHackathons.length} / ${hackathons.length}`,
+      label: "Hackathons",
+      color: "purple",
+    },
+    {
+      icon: Users,
+      value: teamMembers.length.toString(),
+      label: "Squad Members",
+      color: "green",
+    },
+    {
+      icon: FolderKanban,
+      value: projects.length.toString(),
+      label: "Projects",
+      color: "orange",
+    },
+    {
+      icon: Code2,
+      value: "94%",
+      label: "Profile Synergy",
+      color: "blue",
+    },
+  ];
+
   return (
     <div className="profile-page">
-
-      {/* ================= HEADER ================= */}
-
+      {/* HEADER */}
       <div className="profile-page-header">
         <div>
-          <span className="profile-eyebrow">
-            ACCOUNT
-          </span>
-
+          <span className="profile-eyebrow">DEVELOPER IDENTITY & SETTINGS</span>
           <h1>My Profile</h1>
-
-          <p>
-            Manage your profile, skills and collaboration
-            preferences.
-          </p>
+          <p>Manage your developer persona, stack credentials, and teammate matching preferences.</p>
         </div>
 
         {!isEditing ? (
-          <button
-            className="profile-edit-btn"
-            onClick={handleEdit}
-          >
-            <Edit3 size={18} />
-            Edit Profile
+          <button className="profile-edit-btn" onClick={handleEdit}>
+            <Edit3 size={17} /> Edit Profile
           </button>
         ) : (
           <div className="profile-action-buttons">
-
-            <button
-              className="profile-cancel-btn"
-              onClick={handleCancel}
-            >
-              <X size={18} />
-              Cancel
+            <button className="profile-cancel-btn" onClick={handleCancel}>
+              <X size={17} /> Cancel
             </button>
-
-            <button
-              className="profile-save-btn"
-              onClick={handleSave}
-            >
-              <Save size={18} />
-              Save Changes
+            <button className="profile-save-btn" onClick={handleSave}>
+              <Save size={17} /> Save Changes
             </button>
-
           </div>
         )}
       </div>
 
-      {/* ================= HERO ================= */}
-
+      {/* HERO CARD */}
       <section className="profile-hero-card">
-
         <div className="profile-avatar">
-          {profile.firstName.charAt(0).toUpperCase()}
+          {currentUser?.firstName?.charAt(0) || currentUser?.fullName?.charAt(0) || "S"}
         </div>
 
         <div className="profile-hero-content">
-
           {!isEditing ? (
             <>
-              <h2>
-                {profile.firstName} {profile.lastName}
-              </h2>
-
+              <h2>{currentUser?.fullName}</h2>
               <div className="profile-role">
-                {profile.role}
+                {currentUser?.primaryRole || currentUser?.role || "Full Stack Developer"}
               </div>
-
               <div className="profile-meta">
-
                 <span>
-                  <Mail size={16} />
-                  {profile.email}
+                  <Mail size={15} /> {currentUser?.email}
                 </span>
-
                 <span>
-                  <MapPin size={16} />
-                  {profile.location}
+                  <MapPin size={15} /> {currentUser?.location || "India"}
                 </span>
-
+                <span>
+                  <Phone size={15} /> {currentUser?.phone || "+91 98765 43210"}
+                </span>
               </div>
             </>
           ) : (
             <div className="hero-edit-fields">
-
               <input
-                name="firstName"
-                value={formData.firstName}
+                name="fullName"
+                value={formData.fullName}
                 onChange={handleChange}
-                placeholder="First name"
+                placeholder="Full Name"
               />
-
-              <input
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                placeholder="Last name"
-              />
-
               <input
                 name="role"
                 value={formData.role}
                 onChange={handleChange}
-                placeholder="Your role"
+                placeholder="Primary Role"
               />
-
+              <input
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                placeholder="Location"
+              />
             </div>
           )}
-
         </div>
 
         <div className="profile-completion">
-
           <div className="completion-header">
-            <span>Profile completion</span>
-            <strong>85%</strong>
+            <span>Profile Completeness</span>
+            <strong>95%</strong>
           </div>
-
           <div className="completion-bar">
-            <div style={{ width: "85%" }} />
+            <div style={{ width: "95%" }} />
           </div>
-
-          <small>
-            Complete your profile to get better teammate
-            matches.
-          </small>
-
+          <small>✓ Ready for AI squad matching</small>
         </div>
-
       </section>
 
-      {/* ================= STATS ================= */}
-
+      {/* STATS */}
       <section className="profile-stats-grid">
-
         {stats.map((stat) => {
           const Icon = stat.icon;
-
           return (
-            <div
-              className={`profile-stat-card ${stat.color}`}
-              key={stat.label}
-            >
+            <div className={`profile-stat-card ${stat.color}`} key={stat.label}>
               <div className="stat-icon">
                 <Icon size={22} />
               </div>
-
               <div>
                 <strong>{stat.value}</strong>
                 <span>{stat.label}</span>
@@ -293,151 +229,69 @@ function Profile() {
             </div>
           );
         })}
-
       </section>
 
-      {/* ================= MAIN CONTENT ================= */}
-
+      {/* CONTENT GRID */}
       <div className="profile-content-grid">
-
-        {/* ================= LEFT ================= */}
-
+        {/* LEFT COLUMN */}
         <div className="profile-main-column">
-
           {/* PERSONAL INFORMATION */}
-
           <section className="profile-section-card">
-
             <div className="section-title">
-
               <div>
                 <h3>Personal Information</h3>
-
-                <p>
-                  Your basic profile information.
-                </p>
+                <p>Basic developer contact credentials.</p>
               </div>
-
-              <User size={22} />
-
+              <User size={20} />
             </div>
 
             {!isEditing ? (
               <div className="information-grid">
-
                 <div className="information-item">
                   <span>Full Name</span>
-
-                  <strong>
-                    {profile.firstName}{" "}
-                    {profile.lastName}
-                  </strong>
+                  <strong>{currentUser?.fullName}</strong>
                 </div>
-
                 <div className="information-item">
                   <span>Email Address</span>
-
-                  <strong>
-                    {profile.email}
-                  </strong>
+                  <strong>{currentUser?.email}</strong>
                 </div>
-
                 <div className="information-item">
-                  <span>Phone</span>
-
-                  <strong>
-                    {profile.phone}
-                  </strong>
+                  <span>Phone Number</span>
+                  <strong>{currentUser?.phone || "+91 98765 43210"}</strong>
                 </div>
-
                 <div className="information-item">
                   <span>Location</span>
-
-                  <strong>
-                    {profile.location}
-                  </strong>
+                  <strong>{currentUser?.location || "India"}</strong>
                 </div>
-
               </div>
             ) : (
               <div className="edit-form-grid">
-
                 <div className="form-field">
-                  <label>First Name</label>
-
-                  <input
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                  />
+                  <label>Full Name</label>
+                  <input name="fullName" value={formData.fullName} onChange={handleChange} />
                 </div>
-
-                <div className="form-field">
-                  <label>Last Name</label>
-
-                  <input
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                  />
-                </div>
-
                 <div className="form-field">
                   <label>Email</label>
-
-                  <input
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                  />
+                  <input name="email" value={formData.email} onChange={handleChange} />
                 </div>
-
                 <div className="form-field">
                   <label>Phone</label>
-
-                  <input
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                  />
+                  <input name="phone" value={formData.phone} onChange={handleChange} />
                 </div>
-
                 <div className="form-field">
                   <label>Location</label>
-
-                  <input
-                    name="location"
-                    value={formData.location}
-                    onChange={handleChange}
-                  />
+                  <input name="location" value={formData.location} onChange={handleChange} />
                 </div>
-
-                <div className="form-field">
-                  <label>Role</label>
-
-                  <input
-                    name="role"
-                    value={formData.role}
-                    onChange={handleChange}
-                  />
-                </div>
-
               </div>
             )}
-
           </section>
 
-          {/* ABOUT */}
-
+          {/* BIO / ABOUT */}
           <section className="profile-section-card">
-
             <div className="section-title">
               <div>
-                <h3>About Me</h3>
-
-                <p>
-                  Tell teammates what you are interested in.
-                </p>
+                <h3>Developer Bio</h3>
+                <p>Summary displayed on your public teammate profile.</p>
               </div>
             </div>
 
@@ -447,349 +301,203 @@ function Profile() {
                 name="bio"
                 value={formData.bio}
                 onChange={handleChange}
-                rows="5"
+                rows="4"
               />
             ) : (
-              <p className="profile-bio">
-                {profile.bio}
-              </p>
+              <p className="profile-bio">{currentUser?.bio}</p>
             )}
-
           </section>
 
-          {/* SKILLS */}
-
+          {/* TECHNICAL SKILLS */}
           <section className="profile-section-card">
-
             <div className="section-title">
-
               <div>
                 <h3>Technical Skills</h3>
-
-                <p>
-                  These skills are used by the matching engine.
-                </p>
+                <p>Core programming languages, frameworks, and tools.</p>
               </div>
-
-              <Code2 size={22} />
-
+              <Code2 size={20} />
             </div>
 
             {isEditing ? (
               <div className="form-field">
-
-                <label>
-                  Skills — separate with commas
-                </label>
-
+                <label>Skills (comma-separated)</label>
                 <input
-                  value={formData.skills.join(", ")}
-                  onChange={handleSkillsChange}
+                  name="techSkills"
+                  value={formData.techSkills}
+                  onChange={handleChange}
                 />
-
               </div>
             ) : (
               <div className="skill-list">
-
-                {profile.skills.map((skill) => (
-                  <span key={skill}>
-                    {skill}
-                  </span>
+                {skillsList.map((skill) => (
+                  <span key={skill}>{skill}</span>
                 ))}
-
               </div>
             )}
-
           </section>
 
-          {/* DOMAINS */}
-
+          {/* PROJECT DOMAINS */}
           <section className="profile-section-card">
-
             <div className="section-title">
-
               <div>
-                <h3>Project Domains</h3>
-
-                <p>
-                  Areas you are interested in working on.
-                </p>
+                <h3>Hackathon Domains</h3>
+                <p>Target tracks and industry problem domains.</p>
               </div>
-
             </div>
 
             {isEditing ? (
               <div className="form-field">
-
-                <label>
-                  Domains — separate with commas
-                </label>
-
+                <label>Domains (comma-separated)</label>
                 <input
-                  value={formData.domains.join(", ")}
-                  onChange={handleDomainsChange}
+                  name="projectDomains"
+                  value={formData.projectDomains}
+                  onChange={handleChange}
                 />
-
               </div>
             ) : (
               <div className="domain-list">
-
-                {profile.domains.map((domain) => (
-                  <span key={domain}>
-                    {domain}
-                  </span>
+                {domainsList.map((domain) => (
+                  <span key={domain}>{domain}</span>
                 ))}
-
               </div>
             )}
-
           </section>
-
         </div>
 
-        {/* ================= RIGHT ================= */}
-
+        {/* RIGHT COLUMN */}
         <aside className="profile-side-column">
-
-          {/* SOCIAL */}
-
+          {/* SOCIAL LINKS */}
           <section className="profile-section-card">
-
             <div className="section-title">
-
               <div>
-                <h3>Social Profiles</h3>
-
-                <p>
-                  Connect your developer profiles.
-                </p>
+                <h3>Developer Links</h3>
+                <p>Reputation profiles and portfolios.</p>
               </div>
-
             </div>
 
-            <div className="social-links">
-
-              <a
-                href={profile.github}
-                target="_blank"
-                rel="noreferrer"
-                className="social-link"
-              >
-
-                <div className="social-logo github-logo">
-                  GH
+            {isEditing ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <div className="form-field">
+                  <label>GitHub URL</label>
+                  <input name="githubUrl" value={formData.githubUrl} onChange={handleChange} />
                 </div>
-
-                <div>
-                  <strong>GitHub</strong>
-
-                  <span>
-                    View repositories
-                  </span>
+                <div className="form-field">
+                  <label>LinkedIn URL</label>
+                  <input name="linkedinUrl" value={formData.linkedinUrl} onChange={handleChange} />
                 </div>
+              </div>
+            ) : (
+              <div className="social-links">
+                <a
+                  href={currentUser?.githubUrl || "https://github.com"}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="social-link"
+                >
+                  <div className="social-logo github-logo">GH</div>
+                  <div>
+                    <strong>GitHub</strong>
+                    <span>View repositories</span>
+                  </div>
+                </a>
 
-              </a>
-
-              <a
-                href={profile.linkedin}
-                target="_blank"
-                rel="noreferrer"
-                className="social-link"
-              >
-
-                <div className="social-logo linkedin-logo">
-                  in
-                </div>
-
-                <div>
-                  <strong>LinkedIn</strong>
-
-                  <span>
-                    View professional profile
-                  </span>
-                </div>
-
-              </a>
-
-            </div>
-
+                <a
+                  href={currentUser?.linkedinUrl || "https://linkedin.com"}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="social-link"
+                >
+                  <div className="social-logo linkedin-logo">in</div>
+                  <div>
+                    <strong>LinkedIn</strong>
+                    <span>View professional profile</span>
+                  </div>
+                </a>
+              </div>
+            )}
           </section>
 
-          {/* CURRENT TEAM */}
-
+          {/* ACTIVE TEAM CARD */}
           <section className="profile-section-card">
-
             <div className="section-title">
-
               <div>
-                <h3>Current Team</h3>
-
-                <p>
-                  Your active collaboration.
-                </p>
+                <h3>Active Squad</h3>
+                <p>Current hackathon squad.</p>
               </div>
-
             </div>
 
             <div className="current-team">
-
-              <div className="team-avatar">
-                AI
-              </div>
-
+              <div className="team-avatar">CC</div>
               <div>
-                <strong>
-                  AI Study Assistant
-                </strong>
-
-                <span>
-                  4 team members
-                </span>
+                <strong>CodeCrafters</strong>
+                <span>{teamMembers.length} team members</span>
               </div>
-
             </div>
-
-            <button className="outline-full-btn">
-              View Team
-            </button>
-
           </section>
 
           {/* STATUS */}
-
           <section className="profile-section-card">
-
             <div className="section-title">
-
               <div>
-                <h3>Profile Status</h3>
-
-                <p>
-                  Keep your profile updated.
-                </p>
+                <h3>Matching Status</h3>
+                <p>Teammate discovery settings.</p>
               </div>
-
             </div>
 
             <div className="profile-status-item">
-
-              <CheckCircle2 size={20} />
-
+              <CheckCircle2 size={18} color="#10b981" />
               <div>
-                <strong>
-                  Profile is active
-                </strong>
-
-                <span>
-                  You are visible to teammate matching.
-                </span>
+                <strong>Visible to Teammate Search</strong>
+                <span>Your profile is actively suggested in AI Hub.</span>
               </div>
-
             </div>
 
             <div className="profile-status-item">
-
-              <Calendar size={20} />
-
+              <Calendar size={18} color="#8b5cf6" />
               <div>
-                <strong>
-                  Joined HackathonBuddy
-                </strong>
-
-                <span>
-                  August 2026
-                </span>
+                <strong>Hackathon Season</strong>
+                <span>Active 2026 Circuit</span>
               </div>
-
             </div>
-
           </section>
-
         </aside>
-
       </div>
 
-      {/* ================= PROJECTS ================= */}
-
+      {/* MY PROJECTS SECTION */}
       <section className="profile-project-section">
-
         <div className="projects-header">
-
           <div>
-
-            <span className="profile-eyebrow">
-              WORKSPACE
-            </span>
-
-            <h2>My Projects</h2>
-
-            <p>
-              Projects you are currently working on.
-            </p>
-
+            <span className="profile-eyebrow">WORKSPACE</span>
+            <h2>My Projects ({projects.length})</h2>
+            <p>Active codebases and repositories you are collaborating on.</p>
           </div>
-
-          <button className="view-all-btn">
-            View All
-          </button>
-
         </div>
 
         <div className="profile-project-grid">
-
-          {projects.map((project) => (
-            <div
-              className="profile-project-card"
-              key={project.name}
-            >
-
+          {projects.map((proj) => (
+            <div className="profile-project-card" key={proj.id}>
               <div className="project-top">
-
                 <div className="project-icon">
-                  <Code2 size={21} />
+                  <Code2 size={20} />
                 </div>
-
-                <span className="project-status">
-                  {project.status}
-                </span>
-
+                <span className="project-status">{proj.status}</span>
               </div>
 
-              <h3>{project.name}</h3>
-
-              <p>{project.domain}</p>
+              <h3>{proj.name}</h3>
+              <p>{proj.domain}</p>
 
               <div className="project-progress-header">
-
-                <span>Progress</span>
-
-                <strong>
-                  {project.progress}%
-                </strong>
-
+                <span>Sprint Progress</span>
+                <strong>{proj.progress || 60}%</strong>
               </div>
 
               <div className="project-progress">
-
-                <div
-                  style={{
-                    width: `${project.progress}%`,
-                  }}
-                />
-
+                <div style={{ width: `${proj.progress || 60}%` }} />
               </div>
-
-              <button className="open-project-btn">
-                Open Project →
-              </button>
-
             </div>
           ))}
-
         </div>
-
       </section>
-
     </div>
   );
 }

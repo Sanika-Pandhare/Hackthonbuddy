@@ -1,347 +1,29 @@
-// import { useState } from "react";
-// import "./CreateProfile.css";
-
-// function CreateProfile({ onBack, onLogin }) {
-//   const [formData, setFormData] = useState({
-//     fullName: "",
-//     email: "",
-//     password: "",
-//     primaryRole: "Full Stack",
-//     techSkills: "",
-//     projectDomains: "",
-//     githubUrl: "",
-//   });
-
-//   const handleChange = (event) => {
-//     const { name, value } = event.target;
-
-//     setFormData((previous) => ({
-//       ...previous,
-//       [name]: value,
-//     }));
-//   };
-
-//   const handleSubmit = (event) => {
-//     event.preventDefault();
-
-//     console.log("Profile Data:", formData);
-
-//     // Spring Boot API will be connected here later.
-//   };
-
-//   return (
-//     <div className="hb-profile-page">
-
-//       {/* Background */}
-//       <div className="hb-profile-glow hb-profile-glow-left"></div>
-//       <div className="hb-profile-glow hb-profile-glow-right"></div>
-
-
-//       {/* Back */}
-//       <button
-//         type="button"
-//         className="hb-profile-back"
-//         onClick={onBack}
-//       >
-//         ← Back
-//       </button>
-
-
-//       {/* Main */}
-//       <main className="hb-profile-wrapper">
-
-//         {/* Brand */}
-//         <div className="hb-profile-brand">
-
-//           <div className="hb-profile-brand-icon">
-//             🚀
-//           </div>
-
-//           <div className="hb-profile-brand-name">
-//             HACKATHON<span>BUDDY</span>
-//           </div>
-
-//         </div>
-
-
-//         {/* Heading */}
-//         <h1 className="hb-profile-title">
-//           JOIN THE CLUB
-//         </h1>
-
-//         <p className="hb-profile-subtitle">
-//           Create your profile to get matched
-//         </p>
-
-
-//         {/* Form */}
-//         <form
-//           className="hb-profile-card"
-//           onSubmit={handleSubmit}
-//         >
-
-//           {/* =====================================
-//               IDENTITY
-//           ===================================== */}
-
-//           <section className="hb-profile-section">
-
-//             <h2 className="hb-profile-section-title purple">
-//               IDENTITY
-//             </h2>
-
-
-//             {/* Full Name */}
-//             <div className="hb-profile-field">
-
-//               <label htmlFor="fullName">
-//                 FULL NAME
-//               </label>
-
-//               <input
-//                 id="fullName"
-//                 name="fullName"
-//                 type="text"
-//                 placeholder="Jane Doe"
-//                 value={formData.fullName}
-//                 onChange={handleChange}
-//                 autoComplete="name"
-//                 required
-//               />
-
-//             </div>
-
-
-//             {/* Email */}
-//             <div className="hb-profile-field">
-
-//               <label htmlFor="profile-email">
-//                 EMAIL
-//               </label>
-
-//               <input
-//                 id="profile-email"
-//                 name="email"
-//                 type="email"
-//                 placeholder="jane@example.com"
-//                 value={formData.email}
-//                 onChange={handleChange}
-//                 autoComplete="email"
-//                 required
-//               />
-
-//             </div>
-
-
-//             {/* Password */}
-//             <div className="hb-profile-field">
-
-//               <label htmlFor="profile-password">
-//                 PASSWORD
-//               </label>
-
-//               <input
-//                 id="profile-password"
-//                 name="password"
-//                 type="password"
-//                 placeholder="Min 6 chars"
-//                 value={formData.password}
-//                 onChange={handleChange}
-//                 autoComplete="new-password"
-//                 minLength={6}
-//                 required
-//               />
-
-//             </div>
-
-
-//             {/* Role */}
-//             <div className="hb-profile-field">
-
-//               <label htmlFor="primaryRole">
-//                 PRIMARY ROLE
-//               </label>
-
-//               <select
-//                 id="primaryRole"
-//                 name="primaryRole"
-//                 value={formData.primaryRole}
-//                 onChange={handleChange}
-//               >
-
-//                 <option value="Full Stack">
-//                   Full Stack
-//                 </option>
-
-//                 <option value="Frontend">
-//                   Frontend Developer
-//                 </option>
-
-//                 <option value="Backend">
-//                   Backend Developer
-//                 </option>
-
-//                 <option value="AI/ML">
-//                   AI / ML Engineer
-//                 </option>
-
-//                 <option value="Data Scientist">
-//                   Data Scientist
-//                 </option>
-
-//                 <option value="UI/UX">
-//                   UI / UX Designer
-//                 </option>
-
-//                 <option value="DevOps">
-//                   DevOps Engineer
-//                 </option>
-
-//                 <option value="Product Manager">
-//                   Product Manager
-//                 </option>
-
-//               </select>
-
-//             </div>
-
-//           </section>
-
-
-//           {/* =====================================
-//               STACK
-//           ===================================== */}
-
-//           <section className="hb-profile-section">
-
-//             <h2 className="hb-profile-section-title cyan">
-//               STACK
-//             </h2>
-
-
-//             {/* Tech Skills */}
-//             <div className="hb-profile-field">
-
-//               <label htmlFor="techSkills">
-//                 TECH SKILLS
-//               </label>
-
-//               <input
-//                 id="techSkills"
-//                 name="techSkills"
-//                 type="text"
-//                 placeholder="React, Node..."
-//                 value={formData.techSkills}
-//                 onChange={handleChange}
-//                 required
-//               />
-
-//             </div>
-
-
-//             {/* Project Domains */}
-//             <div className="hb-profile-field">
-
-//               <label htmlFor="projectDomains">
-//                 PROJECT DOMAINS
-//               </label>
-
-//               <input
-//                 id="projectDomains"
-//                 name="projectDomains"
-//                 type="text"
-//                 placeholder="AI, Web3..."
-//                 value={formData.projectDomains}
-//                 onChange={handleChange}
-//               />
-
-//             </div>
-
-
-//             {/* Github */}
-//             <div className="hb-profile-field">
-
-//               <label htmlFor="githubUrl">
-//                 GITHUB URL
-//               </label>
-
-//               <input
-//                 id="githubUrl"
-//                 name="githubUrl"
-//                 type="url"
-//                 placeholder="https://github.com/..."
-//                 value={formData.githubUrl}
-//                 onChange={handleChange}
-//               />
-
-//             </div>
-
-//           </section>
-
-
-//           {/* Submit */}
-//           <button
-//             type="submit"
-//             className="hb-profile-submit"
-//           >
-//             INITIALIZE PROFILE
-//           </button>
-
-
-//           {/* Divider */}
-//           <div className="hb-profile-divider"></div>
-
-
-//           {/* Login */}
-//           <div className="hb-profile-login">
-
-//             <span>
-//               Already have an account?
-//             </span>
-
-//             <button
-//               type="button"
-//               onClick={onLogin}
-//             >
-//               Sign In
-//             </button>
-
-//           </div>
-
-//         </form>
-
-//       </main>
-
-//     </div>
-//   );
-// }
-
-// export default CreateProfile;
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
-
+import { ArrowLeft, Sparkles, UserPlus, CheckCircle2 } from "lucide-react";
+import { useApp } from "../../context/AppContext";
 import "./CreateProfile.css";
 
 function CreateProfile() {
   const navigate = useNavigate();
+  const { registerUser } = useApp();
 
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
-    primaryRole: "Full Stack",
+    primaryRole: "Full Stack Developer",
     techSkills: "",
     projectDomains: "",
     githubUrl: "",
+    location: "India"
   });
 
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -350,7 +32,6 @@ function CreateProfile() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     setError("");
 
     if (
@@ -359,7 +40,7 @@ function CreateProfile() {
       !formData.password.trim() ||
       !formData.techSkills.trim()
     ) {
-      setError("Please fill all required fields.");
+      setError("Please fill all required fields (Full Name, Email, Password, Skills).");
       return;
     }
 
@@ -368,289 +49,219 @@ function CreateProfile() {
       return;
     }
 
-    const user = {
-      fullName: formData.fullName,
-      email: formData.email,
-      password: formData.password,
-      primaryRole: formData.primaryRole,
-      techSkills: formData.techSkills,
-      projectDomains: formData.projectDomains,
-      githubUrl: formData.githubUrl,
-    };
+    // Register user in AppContext in-memory store (no localStorage)
+    registerUser(formData);
+    setSuccess(true);
 
-    localStorage.setItem(
-      "hackathonBuddyUser",
-      JSON.stringify(user)
-    );
-
-    console.log("========== REGISTER ==========");
-    console.log("Registered User:", user);
-    console.log("Name:", user.fullName);
-    console.log("Email:", user.email);
-    console.log("Password:", user.password);
-    console.log("Role:", user.primaryRole);
-    console.log("Skills:", user.techSkills);
-    console.log("Domains:", user.projectDomains);
-    console.log("GitHub:", user.githubUrl);
-    console.log("==============================");
-
-    alert("Profile created successfully!");
-
-    navigate("/login");
+    setTimeout(() => {
+      navigate("/dashboard");
+    }, 500);
   };
 
   return (
     <div className="create-profile-page">
-
-      {/* BACK */}
+      {/* BACK BUTTON */}
       <button
         className="create-profile-back"
         onClick={() => navigate(-1)}
         aria-label="Go back"
       >
-        <ArrowLeft size={25} />
+        <ArrowLeft size={22} />
       </button>
-
 
       {/* HEADER */}
       <header className="create-profile-header">
-
         <div className="create-profile-logo">
-
-          <div className="create-profile-logo-icon">
-            🚀
-          </div>
-
+          <div className="create-profile-logo-icon">🚀</div>
           <div className="create-profile-logo-text">
             HACKATHON<span>BUDDY</span>
           </div>
-
         </div>
 
-
         <h1>JOIN THE CLUB</h1>
-
-        <p>
-          Create your profile to get matched
-        </p>
-
+        <p>Create your developer profile to match with top hackathon teams</p>
       </header>
-
 
       {/* CARD */}
       <div className="create-profile-card">
-
         <form onSubmit={handleSubmit}>
-
           <div className="create-profile-columns">
-
-            {/* =====================
-                LEFT COLUMN
-            ====================== */}
-
+            {/* LEFT COLUMN: IDENTITY */}
             <div className="profile-column">
-
               <h2 className="profile-section-title identity-title">
                 IDENTITY
               </h2>
 
-
               {/* FULL NAME */}
               <div className="profile-field">
-
-                <label htmlFor="fullName">
-                  FULL NAME
-                </label>
-
+                <label htmlFor="fullName">FULL NAME *</label>
                 <input
                   id="fullName"
                   name="fullName"
                   type="text"
-                  placeholder="Jane Doe"
+                  placeholder="Sanika Pandhare"
                   value={formData.fullName}
                   onChange={handleChange}
+                  required
                 />
-
               </div>
-
 
               {/* EMAIL */}
               <div className="profile-field">
-
-                <label htmlFor="email">
-                  EMAIL
-                </label>
-
+                <label htmlFor="email">EMAIL ADDRESS *</label>
                 <input
                   id="email"
                   name="email"
                   type="email"
-                  placeholder="jane@example.com"
+                  placeholder="sanika@example.com"
                   value={formData.email}
                   onChange={handleChange}
+                  required
                 />
-
               </div>
-
 
               {/* PASSWORD */}
               <div className="profile-field">
-
-                <label htmlFor="password">
-                  PASSWORD
-                </label>
-
+                <label htmlFor="password">PASSWORD *</label>
                 <input
                   id="password"
                   name="password"
                   type="password"
-                  placeholder="Min 6 chars"
+                  placeholder="Min 6 characters"
                   value={formData.password}
                   onChange={handleChange}
+                  required
                 />
-
               </div>
-
 
               {/* PRIMARY ROLE */}
               <div className="profile-field">
-
-                <label htmlFor="primaryRole">
-                  PRIMARY ROLE
-                </label>
-
+                <label htmlFor="primaryRole">PRIMARY ROLE *</label>
                 <select
                   id="primaryRole"
                   name="primaryRole"
                   value={formData.primaryRole}
                   onChange={handleChange}
                 >
-                  <option>Full Stack</option>
-                  <option>Frontend</option>
-                  <option>Backend</option>
-                  <option>AI / ML</option>
-                  <option>UI / UX</option>
-                  <option>DevOps</option>
+                  <option>Full Stack Developer</option>
+                  <option>Frontend Developer</option>
+                  <option>Backend Developer</option>
+                  <option>ML Engineer</option>
+                  <option>Data Scientist</option>
+                  <option>UI / UX Designer</option>
+                  <option>DevOps Engineer</option>
+                  <option>Cyber Security Engineer</option>
+                  <option>Product Manager</option>
                 </select>
-
               </div>
-
             </div>
 
-
-            {/* =====================
-                RIGHT COLUMN
-            ====================== */}
-
+            {/* RIGHT COLUMN: STACK */}
             <div className="profile-column">
-
               <h2 className="profile-section-title stack-title">
-                STACK
+                STACK & DOMAINS
               </h2>
-
 
               {/* TECH SKILLS */}
               <div className="profile-field">
-
-                <label htmlFor="techSkills">
-                  TECH SKILLS
-                </label>
-
+                <label htmlFor="techSkills">TECH SKILLS *</label>
                 <input
                   id="techSkills"
                   name="techSkills"
                   type="text"
-                  placeholder="React, Node..."
+                  placeholder="React, Node.js, Python, Java, AWS..."
                   value={formData.techSkills}
                   onChange={handleChange}
+                  required
                 />
-
+                <small style={{ color: "#64748b", fontSize: "11px", marginTop: "4px", display: "block" }}>
+                  Comma-separated for smart AI matching
+                </small>
               </div>
-
 
               {/* PROJECT DOMAINS */}
               <div className="profile-field">
-
-                <label htmlFor="projectDomains">
-                  PROJECT DOMAINS
-                </label>
-
+                <label htmlFor="projectDomains">PROJECT DOMAINS</label>
                 <input
                   id="projectDomains"
                   name="projectDomains"
                   type="text"
-                  placeholder="AI, Web3..."
+                  placeholder="AI / ML, HealthTech, FinTech, Web3..."
                   value={formData.projectDomains}
                   onChange={handleChange}
                 />
-
               </div>
 
-
-              {/* GITHUB */}
+              {/* GITHUB URL */}
               <div className="profile-field">
-
-                <label htmlFor="githubUrl">
-                  GITHUB URL
-                </label>
-
+                <label htmlFor="githubUrl">GITHUB URL</label>
                 <input
                   id="githubUrl"
                   name="githubUrl"
                   type="url"
-                  placeholder="https://github.com/..."
+                  placeholder="https://github.com/username"
                   value={formData.githubUrl}
                   onChange={handleChange}
                 />
-
               </div>
 
+              {/* LOCATION */}
+              <div className="profile-field">
+                <label htmlFor="location">LOCATION</label>
+                <input
+                  id="location"
+                  name="location"
+                  type="text"
+                  placeholder="Pune, India"
+                  value={formData.location}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
-
           </div>
 
-
           {/* ERROR */}
-          {error && (
-            <div className="create-profile-error">
-              {error}
+          {error && <div className="create-profile-error">{error}</div>}
+
+          {/* SUCCESS */}
+          {success && (
+            <div className="create-profile-success" style={{
+              background: "rgba(16, 185, 129, 0.15)",
+              border: "1px solid #10b981",
+              color: "#34d399",
+              padding: "12px",
+              borderRadius: "8px",
+              marginBottom: "16px",
+              fontSize: "13px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px"
+            }}>
+              <CheckCircle2 size={18} />
+              Profile initialized! Redirecting to dashboard...
             </div>
           )}
 
-
-          {/* BUTTON */}
-          <button
-            type="submit"
-            className="initialize-profile-button"
-          >
-            INITIALIZE PROFILE
+          {/* SUBMIT BUTTON */}
+          <button type="submit" className="initialize-profile-button">
+            <UserPlus size={18} />
+            INITIALIZE PROFILE & ENTER WORKSPACE
           </button>
 
-
-          {/* DIVIDER */}
           <div className="create-profile-divider"></div>
 
-
-          {/* LOGIN */}
+          {/* ALREADY HAVE ACCOUNT */}
           <div className="already-account">
-
-            <span>
-              Already have an account?
-            </span>
-
+            <span>Already have an account?</span>
             <button
               type="button"
               onClick={() => navigate("/login")}
             >
               Sign In
             </button>
-
           </div>
-
         </form>
-
       </div>
-
     </div>
   );
 }

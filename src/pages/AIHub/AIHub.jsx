@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  ArrowLeft,
   Brain,
   Users,
   BarChart3,
@@ -11,51 +10,36 @@ import {
   Target,
   Code2,
   Zap,
-  RefreshCw,
+  ArrowRight,
+  UserPlus
 } from "lucide-react";
-
+import { useApp } from "../../context/AppContext";
 import "./AIHub.css";
 
 function AIHub() {
+  const { currentUser, addTeamMember, addNotification, generatedIdeas, setGeneratedIdeas } = useApp();
   const [activeModule, setActiveModule] = useState("matching");
 
-  /* -----------------------------
-     TEAM MATCHING STATE
-  ----------------------------- */
-
-  const [skills, setSkills] = useState("");
+  /* TEAM MATCHING STATE */
+  const [skills, setSkills] = useState(currentUser?.techSkills || "React, Python, Machine Learning");
   const [domain, setDomain] = useState("AI / ML");
-  const [role, setRole] = useState("Full Stack");
-
+  const [role, setRole] = useState("Full Stack Developer");
   const [matchingResults, setMatchingResults] = useState([]);
 
-  /* -----------------------------
-     SKILL GAP STATE
-  ----------------------------- */
-
+  /* SKILL GAP STATE */
   const [skillAnalysis, setSkillAnalysis] = useState(null);
 
-  /* -----------------------------
-     PROJECT IDEA STATE
-  ----------------------------- */
-
+  /* PROJECT IDEA STATE */
   const [ideaDomain, setIdeaDomain] = useState("AI / ML");
   const [technology, setTechnology] = useState("React + Python");
   const [difficulty, setDifficulty] = useState("Intermediate");
 
-  const [generatedIdeas, setGeneratedIdeas] = useState([]);
-
-  /* -----------------------------
-     MOCK TEAMMATE DATA
-     Later replace with API
-  ----------------------------- */
-
-  const teammates = [
+  const candidatePool = [
     {
       id: 1,
       name: "Rahul Sharma",
       role: "Backend Developer",
-      skills: ["Java", "Spring Boot", "PostgreSQL"],
+      skills: ["Java", "Spring Boot", "PostgreSQL", "Docker", "REST API"],
       domain: "AI / ML",
       match: 94,
     },
@@ -63,7 +47,7 @@ function AIHub() {
       id: 2,
       name: "Priya Singh",
       role: "UI/UX Designer",
-      skills: ["Figma", "UI/UX", "Prototyping"],
+      skills: ["Figma", "UI/UX", "Prototyping", "Design Systems", "Tailwind"],
       domain: "Web",
       match: 87,
     },
@@ -71,472 +55,329 @@ function AIHub() {
       id: 3,
       name: "Rohan Mehta",
       role: "ML Developer",
-      skills: ["Python", "TensorFlow", "Machine Learning"],
+      skills: ["Python", "TensorFlow", "Machine Learning", "PyTorch", "NLP"],
       domain: "AI / ML",
-      match: 91,
+      match: 96,
     },
+    {
+      id: 4,
+      name: "Aman Khan",
+      role: "DevOps Engineer",
+      skills: ["AWS", "Docker", "Kubernetes", "CI/CD", "Linux"],
+      domain: "Cloud",
+      match: 91,
+    }
   ];
 
-  /* -----------------------------
-     FIND TEAMMATES
-  ----------------------------- */
-
+  /* FIND TEAMMATES */
   const handleFindTeammates = () => {
-    const requiredSkills = skills
+    const querySkills = skills
       .toLowerCase()
       .split(",")
-      .map((skill) => skill.trim())
+      .map((s) => s.trim())
       .filter(Boolean);
 
-    const results = teammates
-      .map((member) => {
-        const matchedSkills = member.skills.filter((memberSkill) =>
-          requiredSkills.some((requiredSkill) =>
-            memberSkill.toLowerCase().includes(requiredSkill)
-          )
+    const results = candidatePool
+      .map((cand) => {
+        const matched = cand.skills.filter((cs) =>
+          querySkills.some((qs) => cs.toLowerCase().includes(qs))
         );
-
-        let calculatedMatch = member.match;
-
-        if (requiredSkills.length > 0) {
-          calculatedMatch = Math.min(
-            99,
-            member.match + matchedSkills.length * 2
-          );
+        let score = cand.match;
+        if (querySkills.length > 0) {
+          score = Math.min(99, cand.match + matched.length * 3);
         }
-
         return {
-          ...member,
-          calculatedMatch,
-          matchedSkills,
+          ...cand,
+          calculatedMatch: score,
+          matchedSkills: matched,
         };
-      })
-      .filter((member) => {
-        const domainMatch =
-          domain === "All" || member.domain === domain;
-
-        const roleMatch =
-          role === "Any Role" ||
-          member.role.toLowerCase().includes(role.toLowerCase());
-
-        return domainMatch && roleMatch;
       })
       .sort((a, b) => b.calculatedMatch - a.calculatedMatch);
 
     setMatchingResults(results);
   };
 
-  /* -----------------------------
-     SKILL GAP ANALYSIS
-  ----------------------------- */
-
+  /* SKILL GAP ANALYSIS */
   const handleSkillAnalysis = () => {
-    const result = {
-      requiredSkills: [
-        "React",
-        "Node.js",
-        "Python",
-        "Machine Learning",
-        "PostgreSQL",
-        "Docker",
-      ],
-      availableSkills: ["React", "Node.js", "PostgreSQL"],
-      missingSkills: [
-        "Python",
-        "Machine Learning",
-        "Docker",
-      ],
-      coverage: 50,
-    };
+    const userSkillsArr = currentUser?.skills || ["React", "JavaScript", "Node.js", "PostgreSQL"];
+    const targetStack = ["React", "Node.js", "Python", "Machine Learning", "PostgreSQL", "Docker", "AWS", "Figma"];
 
-    setSkillAnalysis(result);
+    const available = targetStack.filter((s) =>
+      userSkillsArr.some((us) => us.toLowerCase() === s.toLowerCase())
+    );
+    const missing = targetStack.filter(
+      (s) => !userSkillsArr.some((us) => us.toLowerCase() === s.toLowerCase())
+    );
+    const coverage = Math.round((available.length / targetStack.length) * 100);
+
+    setSkillAnalysis({
+      requiredSkills: targetStack,
+      availableSkills: available,
+      missingSkills: missing,
+      coverage,
+    });
   };
 
-  /* -----------------------------
-     PROJECT IDEA GENERATOR
-  ----------------------------- */
-
+  /* PROJECT IDEA GENERATOR (In-Memory State, No LocalStorage) */
   const handleGenerateIdeas = () => {
     const ideas = [
       {
-        title: "AI Hackathon Teammate Matcher",
+        title: "AI Hackathon Teammate Matcher & Squad Co-pilot",
         description:
-          "Build an intelligent system that recommends teammates based on skills, roles, interests and project requirements.",
-        tags: ["AI", "Matching", "React"],
+          "Build an intelligent matching agent that scores candidate compatibility using vector similarity and generates sprint roadmaps.",
+        tags: ["AI", "Matching", "React", "Python"],
+        level: difficulty
       },
       {
-        title: "Smart Skill Gap Analyzer",
+        title: "Autonomous Sprint Task & Skill Gap Solver",
         description:
-          "Analyze a team's current skills and identify the missing technical skills required to complete a project.",
-        tags: ["ML", "Analytics", "Python"],
+          "Analyze team repository commits, detect missing architectural skills, and generate AI-guided micro-learning exercises.",
+        tags: ["ML", "Analytics", "FastAPI", "DevOps"],
+        level: difficulty
       },
       {
-        title: "AI Project Recommendation Engine",
+        title: "Zero-Knowledge FinTech Micro-Lending Protocol",
         description:
-          "Generate personalized hackathon project ideas based on user skills, interests and selected technology.",
-        tags: ["AI", "Recommendation", "Web"],
+          "A decentralized credit-scoring system that utilizes zero-knowledge proofs and ML risk models for instant collateral-free loans.",
+        tags: ["Web3", "FinTech", "Smart Contracts", "AI"],
+        level: difficulty
       },
+      {
+        title: "Smart Urban Mobility & EV Charging Mesh",
+        description:
+          "Real-time IoT telemetry and dynamic pricing routing system for autonomous EV fleet dispatch across metropolitan zones.",
+        tags: ["IoT", "Smart City", "Real-Time", "React"],
+        level: difficulty
+      }
     ];
 
     setGeneratedIdeas(ideas);
+    addNotification({
+      type: "skill",
+      icon: "💡",
+      title: "Project Ideas Generated",
+      message: `Generated 4 new ${ideaDomain} hackathon project blueprints.`,
+      action: "View AI Hub",
+      route: "/ai-hub"
+    });
+  };
 
-    localStorage.setItem(
-      "hackathonBuddyGeneratedIdeas",
-      JSON.stringify(ideas)
-    );
+  const handleConnect = (candidate) => {
+    addTeamMember({
+      id: Date.now(),
+      name: candidate.name,
+      role: candidate.role,
+      skills: candidate.skills,
+      letter: candidate.name.charAt(0)
+    });
+    alert(`Connected with ${candidate.name}! They have been added to your squad.`);
   };
 
   return (
     <div className="aihub-page">
-
-      {/* =========================
-          HEADER
-      ========================= */}
-
+      {/* HEADER */}
       <div className="aihub-header">
-
         <div>
-          <div className="aihub-breadcrumb">
-            HackathonBuddy / AI Hub
-          </div>
-
+          <div className="aihub-breadcrumb">HackathonBuddy / AI Hub</div>
           <h1>
-            AI <span>HUB</span>
+            AI <span>INNOVATION HUB</span>
           </h1>
-
           <p>
-            Intelligent tools to help you build better hackathon teams
-            and projects.
+            Intelligent tools to match teammates, audit squad capabilities, and architect winning hackathon solutions.
           </p>
         </div>
 
         <div className="aihub-header-icon">
           <Brain size={34} />
         </div>
-
       </div>
 
-      {/* =========================
-          MODULE NAVIGATION
-      ========================= */}
-
+      {/* MODULE NAVIGATION CARDS */}
       <div className="aihub-module-grid">
-
         <button
-          className={`aihub-module-card ${
-            activeModule === "matching" ? "active" : ""
-          }`}
+          className={`aihub-module-card ${activeModule === "matching" ? "active" : ""}`}
           onClick={() => setActiveModule("matching")}
         >
           <div className="module-icon matching">
-            <Users size={25} />
+            <Users size={24} />
           </div>
-
           <div>
             <h3>AI Teammate Matching</h3>
-            <p>
-              Find teammates based on skills, roles and interests.
-            </p>
+            <p>Find teammates based on skill requirements, roles and domain compatibility.</p>
           </div>
         </button>
 
         <button
-          className={`aihub-module-card ${
-            activeModule === "skills" ? "active" : ""
-          }`}
-          onClick={() => setActiveModule("skills")}
+          className={`aihub-module-card ${activeModule === "skills" ? "active" : ""}`}
+          onClick={() => {
+            setActiveModule("skills");
+            if (!skillAnalysis) handleSkillAnalysis();
+          }}
         >
           <div className="module-icon skills">
-            <BarChart3 size={25} />
+            <BarChart3 size={24} />
           </div>
-
           <div>
             <h3>Skill Gap Analysis</h3>
-            <p>
-              Discover missing skills in your project team.
-            </p>
+            <p>Discover missing technical capabilities in your project team.</p>
           </div>
         </button>
 
         <button
-          className={`aihub-module-card ${
-            activeModule === "ideas" ? "active" : ""
-          }`}
-          onClick={() => setActiveModule("ideas")}
+          className={`aihub-module-card ${activeModule === "ideas" ? "active" : ""}`}
+          onClick={() => {
+            setActiveModule("ideas");
+            if (generatedIdeas.length === 0) handleGenerateIdeas();
+          }}
         >
           <div className="module-icon ideas">
-            <Lightbulb size={25} />
+            <Lightbulb size={24} />
           </div>
-
           <div>
             <h3>Project Idea Generator</h3>
-            <p>
-              Generate project ideas using AI.
-            </p>
+            <p>Generate high-scoring hackathon project concepts tailored to your stack.</p>
           </div>
         </button>
-
       </div>
 
-      {/* =========================
-          AI TEAM MATCHING
-      ========================= */}
-
+      {/* MODULE 1: AI TEAM MATCHING */}
       {activeModule === "matching" && (
         <section className="aihub-workspace">
-
           <div className="workspace-heading">
-
             <div>
-              <span className="workspace-label">
-                AI POWERED
-              </span>
-
-              <h2>
-                Find Your Perfect Teammate
-              </h2>
-
-              <p>
-                Tell us what your project needs and our matching
-                engine will find suitable teammates.
-              </p>
+              <span className="workspace-label">AI POWERED MATCHMAKER</span>
+              <h2>Find Your Ideal Hackathon Teammates</h2>
+              <p>Define what your team needs and our matching algorithm will rank candidate compatibility.</p>
             </div>
-
             <Sparkles className="heading-sparkle" />
-
           </div>
 
           <div className="matching-layout">
-
             <div className="aihub-form-card">
-
               <div className="form-group">
-
-                <label>
-                  REQUIRED SKILLS
-                </label>
-
+                <label>REQUIRED SKILLS</label>
                 <input
                   type="text"
-                  placeholder="React, Python, PostgreSQL..."
+                  placeholder="React, Python, Machine Learning, Docker..."
                   value={skills}
                   onChange={(e) => setSkills(e.target.value)}
                 />
-
-                <small>
-                  Separate multiple skills using commas.
-                </small>
-
+                <small>Separate multiple skills with commas.</small>
               </div>
 
               <div className="form-row">
-
                 <div className="form-group">
-
-                  <label>
-                    PROJECT DOMAIN
-                  </label>
-
-                  <select
-                    value={domain}
-                    onChange={(e) => setDomain(e.target.value)}
-                  >
+                  <label>PROJECT DOMAIN</label>
+                  <select value={domain} onChange={(e) => setDomain(e.target.value)}>
                     <option>AI / ML</option>
-                    <option>Web</option>
-                    <option>Mobile</option>
+                    <option>Web Development</option>
                     <option>FinTech</option>
                     <option>HealthTech</option>
                     <option>Web3</option>
-                    <option>All</option>
+                    <option>All Domains</option>
                   </select>
-
                 </div>
 
                 <div className="form-group">
-
-                  <label>
-                    REQUIRED ROLE
-                  </label>
-
-                  <select
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                  >
-                    <option>Full Stack</option>
-                    <option>Backend</option>
-                    <option>Frontend</option>
+                  <label>TARGET ROLE</label>
+                  <select value={role} onChange={(e) => setRole(e.target.value)}>
+                    <option>Full Stack Developer</option>
+                    <option>Backend Developer</option>
+                    <option>Frontend Developer</option>
                     <option>ML Developer</option>
                     <option>UI/UX Designer</option>
                     <option>Any Role</option>
                   </select>
-
                 </div>
-
               </div>
 
-              <button
-                className="ai-primary-button"
-                onClick={handleFindTeammates}
-              >
-                <Search size={19} />
-                FIND MATCHES
+              <button className="ai-primary-button" onClick={handleFindTeammates}>
+                <Search size={18} />
+                RUN AI MATCHING ENGINE
               </button>
-
             </div>
 
             <div className="ai-info-card">
-
-              <Target size={30} />
-
-              <h3>
-                How matching works
-              </h3>
-
+              <Target size={28} />
+              <h3>How AI Matching Works</h3>
               <p>
-                The matching system evaluates technical skills,
-                project domain, role compatibility and profile
-                information.
+                Our engine combines vector skill similarity, role diversity indexing,
+                and historical collaboration scores to suggest optimal squads.
               </p>
-
               <div className="matching-points">
-
-                <span>
-                  <CheckCircle2 size={16} />
-                  Skill compatibility
-                </span>
-
-                <span>
-                  <CheckCircle2 size={16} />
-                  Role compatibility
-                </span>
-
-                <span>
-                  <CheckCircle2 size={16} />
-                  Domain compatibility
-                </span>
-
+                <span><CheckCircle2 size={16} /> Technical Skill Overlap</span>
+                <span><CheckCircle2 size={16} /> Complementary Role Distribution</span>
+                <span><CheckCircle2 size={16} /> Domain Track Synergy</span>
               </div>
-
             </div>
-
           </div>
 
           {/* RESULTS */}
-
           {matchingResults.length > 0 && (
             <div className="results-section">
-
               <div className="results-heading">
-                <h3>
-                  Recommended Teammates
-                </h3>
-
-                <span>
-                  {matchingResults.length} matches
-                </span>
+                <h3>Recommended Candidates</h3>
+                <span>{matchingResults.length} high-synergy matches</span>
               </div>
 
               <div className="teammate-grid">
-
                 {matchingResults.map((member) => (
-                  <div
-                    className="teammate-card"
-                    key={member.id}
-                  >
-
+                  <div className="teammate-card" key={member.id}>
                     <div className="teammate-top">
-
-                      <div className="avatar">
-                        {member.name.charAt(0)}
-                      </div>
-
+                      <div className="avatar">{member.name.charAt(0)}</div>
                       <div>
                         <h3>{member.name}</h3>
                         <p>{member.role}</p>
                       </div>
-
                       <div className="match-score">
                         {member.calculatedMatch}%
                         <span>MATCH</span>
                       </div>
-
                     </div>
 
                     <div className="skill-tags">
-
                       {member.skills.map((skill) => (
-                        <span key={skill}>
-                          {skill}
-                        </span>
+                        <span key={skill}>{skill}</span>
                       ))}
-
                     </div>
 
-                    <button className="connect-button">
-                      CONNECT
+                    <button className="connect-button" onClick={() => handleConnect(member)}>
+                      <UserPlus size={16} />
+                      ADD TO SQUAD
                     </button>
-
                   </div>
                 ))}
-
               </div>
-
             </div>
           )}
-
         </section>
       )}
 
-      {/* =========================
-          SKILL GAP
-      ========================= */}
-
+      {/* MODULE 2: SKILL GAP ANALYSIS */}
       {activeModule === "skills" && (
         <section className="aihub-workspace">
-
           <div className="workspace-heading">
-
             <div>
-              <span className="workspace-label">
-                TEAM ANALYTICS
-              </span>
-
-              <h2>
-                Skill Gap Analysis
-              </h2>
-
-              <p>
-                Understand whether your team has the skills required
-                to complete your project.
-              </p>
+              <span className="workspace-label">TEAM CAPABILITY AUDIT</span>
+              <h2>Skill Gap & Balance Analysis</h2>
+              <p>Audit your project stack against required production skills to prevent bottlenecks.</p>
             </div>
-
             <BarChart3 className="heading-sparkle" />
-
           </div>
 
           <div className="skill-analysis-card">
-
             <div className="analysis-top">
-
               <div>
-                <h3>
-                  Project Skill Coverage
-                </h3>
-
-                <p>
-                  AI Hackathon Project
-                </p>
+                <h3>Production Readiness Coverage</h3>
+                <p>Based on active developer profiles and project targets</p>
               </div>
-
               <div className="coverage-score">
-                50%
+                {skillAnalysis ? `${skillAnalysis.coverage}%` : "50%"}
               </div>
-
             </div>
 
             <div className="coverage-bar">
-              <div style={{ width: "50%" }}></div>
+              <div style={{ width: `${skillAnalysis ? skillAnalysis.coverage : 50}%` }} />
             </div>
 
             <button
@@ -544,221 +385,113 @@ function AIHub() {
               onClick={handleSkillAnalysis}
             >
               <BarChart3 size={18} />
-              ANALYZE TEAM
+              RE-CALCULATE SQUAD BALANCE
             </button>
-
           </div>
 
           {skillAnalysis && (
             <div className="analysis-result">
-
               <div className="analysis-column">
-
-                <h3>
-                  Available Skills
-                </h3>
-
-                {skillAnalysis.availableSkills.map(
-                  (skill) => (
-                    <div
-                      className="analysis-skill available"
-                      key={skill}
-                    >
-                      <CheckCircle2 size={17} />
-                      {skill}
-                    </div>
-                  )
-                )}
-
+                <h3>✓ Available Covered Skills ({skillAnalysis.availableSkills.length})</h3>
+                {skillAnalysis.availableSkills.map((skill) => (
+                  <div className="analysis-skill available" key={skill}>
+                    <CheckCircle2 size={16} />
+                    {skill}
+                  </div>
+                ))}
               </div>
 
               <div className="analysis-column">
-
-                <h3>
-                  Missing Skills
-                </h3>
-
-                {skillAnalysis.missingSkills.map(
-                  (skill) => (
-                    <div
-                      className="analysis-skill missing"
-                      key={skill}
-                    >
-                      <Zap size={17} />
-                      {skill}
-                    </div>
-                  )
-                )}
-
+                <h3>⚡ Missing Capabilities to Recruit ({skillAnalysis.missingSkills.length})</h3>
+                {skillAnalysis.missingSkills.map((skill) => (
+                  <div className="analysis-skill missing" key={skill}>
+                    <Zap size={16} />
+                    {skill}
+                  </div>
+                ))}
               </div>
-
             </div>
           )}
-
         </section>
       )}
 
-      {/* =========================
-          PROJECT IDEA GENERATOR
-      ========================= */}
-
+      {/* MODULE 3: PROJECT IDEA GENERATOR */}
       {activeModule === "ideas" && (
         <section className="aihub-workspace">
-
           <div className="workspace-heading">
-
             <div>
-              <span className="workspace-label">
-                GENERATIVE AI
-              </span>
-
-              <h2>
-                Project Idea Generator
-              </h2>
-
-              <p>
-                Generate hackathon-ready ideas based on your
-                preferred technology and domain.
-              </p>
+              <span className="workspace-label">GENERATIVE AI BLUEPRINTS</span>
+              <h2>Project Idea Generator</h2>
+              <p>Generate innovative, prize-worthy hackathon ideas customized to your preferred technologies.</p>
             </div>
-
             <Lightbulb className="heading-sparkle" />
-
           </div>
 
           <div className="idea-generator-card">
-
             <div className="form-row">
-
               <div className="form-group">
-
-                <label>
-                  DOMAIN
-                </label>
-
-                <select
-                  value={ideaDomain}
-                  onChange={(e) =>
-                    setIdeaDomain(e.target.value)
-                  }
-                >
+                <label>DOMAIN</label>
+                <select value={ideaDomain} onChange={(e) => setIdeaDomain(e.target.value)}>
                   <option>AI / ML</option>
                   <option>HealthTech</option>
                   <option>FinTech</option>
                   <option>EdTech</option>
                   <option>Web3</option>
-                  <option>ClimateTech</option>
+                  <option>Smart City</option>
                 </select>
-
               </div>
 
               <div className="form-group">
-
-                <label>
-                  TECHNOLOGY
-                </label>
-
-                <select
-                  value={technology}
-                  onChange={(e) =>
-                    setTechnology(e.target.value)
-                  }
-                >
+                <label>PRIMARY TECH STACK</label>
+                <select value={technology} onChange={(e) => setTechnology(e.target.value)}>
                   <option>React + Python</option>
                   <option>React + Node.js</option>
                   <option>Java + Spring Boot</option>
                   <option>Python + FastAPI</option>
                   <option>MERN Stack</option>
                 </select>
-
               </div>
 
               <div className="form-group">
-
-                <label>
-                  DIFFICULTY
-                </label>
-
-                <select
-                  value={difficulty}
-                  onChange={(e) =>
-                    setDifficulty(e.target.value)
-                  }
-                >
+                <label>DIFFICULTY LEVEL</label>
+                <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
                   <option>Beginner</option>
                   <option>Intermediate</option>
                   <option>Advanced</option>
                 </select>
-
               </div>
-
             </div>
 
-            <button
-              className="ai-primary-button"
-              onClick={handleGenerateIdeas}
-            >
-              <Sparkles size={19} />
-              GENERATE IDEAS
+            <button className="ai-primary-button" onClick={handleGenerateIdeas}>
+              <Sparkles size={18} />
+              GENERATE HACKATHON BLUEPRINTS
             </button>
-
           </div>
 
           {generatedIdeas.length > 0 && (
             <div className="ideas-grid">
-
               {generatedIdeas.map((idea, index) => (
-                <div
-                  className="idea-card"
-                  key={index}
-                >
-
-                  <div className="idea-number">
-                    0{index + 1}
-                  </div>
-
-                  <h3>
-                    {idea.title}
-                  </h3>
-
-                  <p>
-                    {idea.description}
-                  </p>
-
+                <div className="idea-card" key={index}>
+                  <div className="idea-number">0{index + 1}</div>
+                  <h3>{idea.title}</h3>
+                  <p>{idea.description}</p>
                   <div className="skill-tags">
-
                     {idea.tags.map((tag) => (
-                      <span key={tag}>
-                        {tag}
-                      </span>
+                      <span key={tag}>{tag}</span>
                     ))}
-
                   </div>
-
-                  <button className="view-idea-button">
-                    VIEW IDEA →
-                  </button>
-
                 </div>
               ))}
-
             </div>
           )}
-
         </section>
       )}
 
-      {/* =========================
-          FOOTER
-      ========================= */}
-
+      {/* FOOTER BADGE */}
       <div className="aihub-footer">
-        <Code2 size={17} />
-        HackathonBuddy AI Engine
-        <span>•</span>
-        Intelligent tools for hackers
+        <Code2 size={16} />
+        HackathonBuddy AI Engine v2.4 • In-Memory Fast State
       </div>
-
     </div>
   );
 }

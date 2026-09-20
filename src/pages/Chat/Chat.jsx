@@ -1,203 +1,212 @@
 import React, { useMemo, useState } from "react";
+import { Send, Search, CheckCheck, Paperclip, Smile, MoreVertical, Phone, Video, Users as UsersIcon, X } from "lucide-react";
+import { useApp } from "../../context/AppContext";
 import "./Chat.css";
 
-const conversations = [
+const initialConversations = [
   {
     id: 1,
     name: "AI Study Assistant",
     short: "AI",
-    preview: "Rohan: Authentication API is ready.",
+    preview: "Rohan: Authentication API endpoints are ready for testing.",
     time: "09:18 PM",
     unread: 2,
     color: "purple",
+    members: ["Sanika", "Priya", "Rohan", "Aman"]
   },
   {
     id: 2,
-    name: "Hackathon Team",
-    short: "HT",
-    preview: "Don't forget tomorrow's submission.",
+    name: "CodeCrafters Squad",
+    short: "CC",
+    preview: "Priya: I updated the responsive Figma layout.",
     time: "08:42 PM",
     unread: 0,
     color: "blue",
+    members: ["Sanika", "Priya", "Rohan", "Aman"]
   },
   {
     id: 3,
     name: "Priya Singh",
     short: "P",
-    preview: "I pushed the dashboard changes.",
+    preview: "Can you check the login page styles?",
     time: "07:30 PM",
     unread: 1,
     color: "pink",
+    members: ["Sanika", "Priya"]
   },
   {
     id: 4,
     name: "Rohan Mehta",
     short: "R",
-    preview: "API endpoint is working now.",
+    preview: "Database migration script is finished.",
     time: "Yesterday",
     unread: 0,
     color: "navy",
+    members: ["Sanika", "Rohan"]
   },
   {
     id: 5,
     name: "Aman Khan",
     short: "A",
-    preview: "Model accuracy reached 87%.",
+    preview: "Model test accuracy reached 94%.",
     time: "Yesterday",
     unread: 0,
     color: "green",
+    members: ["Sanika", "Aman"]
   },
 ];
 
-const initialMessages = [
-  {
-    id: 1,
-    sender: "Rohan Mehta",
-    short: "R",
-    type: "received",
-    text: "Authentication API is ready. I have completed the login and registration endpoints.",
-    time: "09:10 PM",
-  },
-  {
-    id: 2,
-    sender: "You",
-    short: "S",
-    type: "sent",
-    text: "Great! I'll connect it with the frontend login flow.",
-    time: "09:12 PM",
-  },
-  {
-    id: 3,
-    sender: "Priya Singh",
-    short: "P",
-    type: "received",
-    text: "I pushed the updated dashboard components. Please review when you get time.",
-    time: "09:15 PM",
-  },
-  {
-    id: 4,
-    sender: "Rohan Mehta",
-    short: "R",
-    type: "received",
-    text: "Authentication API is ready.",
-    time: "09:18 PM",
-  },
-];
-
-const members = [
-  {
-    name: "Sanika Haridas Pandhare",
-    role: "Full Stack Developer",
-    short: "S",
-    online: true,
-  },
-  {
-    name: "Priya Singh",
-    role: "UI/UX Developer",
-    short: "P",
-    online: true,
-  },
-  {
-    name: "Rohan Mehta",
-    role: "Backend Developer",
-    short: "R",
-    online: false,
-  },
-  {
-    name: "Aman Khan",
-    role: "ML Developer",
-    short: "A",
-    online: true,
-  },
-];
-
-const files = [
-  {
-    name: "project-requirements.pdf",
-    size: "2.4 MB",
-    type: "pdf",
-  },
-  {
-    name: "api-documentation.md",
-    size: "8 KB",
-    type: "code",
-  },
-];
-
-function Chat() {
-  const [selectedChat, setSelectedChat] = useState(1);
-  const [activeTab, setActiveTab] = useState("All");
-  const [search, setSearch] = useState("");
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState(initialMessages);
-  const [showMenu, setShowMenu] = useState(false);
-
-  const currentConversation = conversations.find(
-    (item) => item.id === selectedChat
-  );
-
-  const filteredConversations = useMemo(() => {
-    return conversations.filter((conversation) => {
-      const matchesSearch =
-        conversation.name.toLowerCase().includes(search.toLowerCase()) ||
-        conversation.preview.toLowerCase().includes(search.toLowerCase());
-
-      const matchesTab =
-        activeTab === "All" ||
-        (activeTab === "Unread" && conversation.unread > 0) ||
-        activeTab === "Teams";
-
-      return matchesSearch && matchesTab;
-    });
-  }, [search, activeTab]);
-
-  const sendMessage = () => {
-    const trimmedMessage = message.trim();
-
-    if (!trimmedMessage) return;
-
-    const newMessage = {
-      id: Date.now(),
+const initialChatMessages = {
+  1: [
+    {
+      id: 1,
+      sender: "Rohan Mehta",
+      short: "R",
+      type: "received",
+      text: "Authentication API is ready. I have completed the login and registration endpoints.",
+      time: "09:10 PM",
+    },
+    {
+      id: 2,
       sender: "You",
       short: "S",
       type: "sent",
-      text: trimmedMessage,
-      time: "09:20 PM",
+      text: "Awesome! I am connecting it with the frontend state and responsive forms.",
+      time: "09:12 PM",
+    },
+    {
+      id: 3,
+      sender: "Priya Singh",
+      short: "P",
+      type: "received",
+      text: "I pushed the updated dashboard components. Please test on mobile breakpoints when possible!",
+      time: "09:15 PM",
+    },
+    {
+      id: 4,
+      sender: "Rohan Mehta",
+      short: "R",
+      type: "received",
+      text: "Authentication API endpoints are ready for testing.",
+      time: "09:18 PM",
+    },
+  ],
+  2: [
+    {
+      id: 101,
+      sender: "Aman Khan",
+      short: "A",
+      type: "received",
+      text: "Our team submission deadline is in 48 hours. Let's make sure our demo video is recorded early.",
+      time: "08:30 PM"
+    },
+    {
+      id: 102,
+      sender: "Priya Singh",
+      short: "P",
+      type: "received",
+      text: "Priya: I updated the responsive Figma layout.",
+      time: "08:42 PM"
+    }
+  ]
+};
+
+function Chat() {
+  const { currentUser, teamMembers } = useApp();
+  const [conversations, setConversations] = useState(initialConversations);
+  const [selectedChatId, setSelectedChatId] = useState(1);
+  const [messagesByChat, setMessagesByChat] = useState(initialChatMessages);
+  const [activeTab, setActiveTab] = useState("All");
+  const [search, setSearch] = useState("");
+  const [inputText, setInputText] = useState("");
+  const [showRightSidebar, setShowRightSidebar] = useState(false);
+
+  const activeChat = conversations.find((c) => c.id === selectedChatId) || conversations[0];
+  const messages = messagesByChat[selectedChatId] || [];
+
+  const filteredConversations = useMemo(() => {
+    return conversations.filter((c) => {
+      const q = search.toLowerCase();
+      const matchSearch = c.name.toLowerCase().includes(q) || c.preview.toLowerCase().includes(q);
+      const matchTab =
+        activeTab === "All" ||
+        (activeTab === "Unread" && c.unread > 0) ||
+        (activeTab === "Teams" && c.members.length > 2);
+      return matchSearch && matchTab;
+    });
+  }, [conversations, search, activeTab]);
+
+  const handleSendMessage = () => {
+    if (!inputText.trim()) return;
+
+    const newMsg = {
+      id: Date.now(),
+      sender: "You",
+      short: currentUser?.firstName?.charAt(0) || "U",
+      type: "sent",
+      text: inputText.trim(),
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
 
-    setMessages((prev) => [...prev, newMessage]);
-    setMessage("");
+    setMessagesByChat((prev) => ({
+      ...prev,
+      [selectedChatId]: [...(prev[selectedChatId] || []), newMsg],
+    }));
+
+    // Update preview
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === selectedChatId
+          ? { ...c, preview: `You: ${inputText.trim()}`, time: "Just now" }
+          : c
+      )
+    );
+
+    setInputText("");
+
+    // Simulate quick auto-reply after 1.5s
+    setTimeout(() => {
+      const autoReply = {
+        id: Date.now() + 1,
+        sender: activeChat.name.includes("Priya") ? "Priya Singh" : "Rohan Mehta",
+        short: activeChat.name.includes("Priya") ? "P" : "R",
+        type: "received",
+        text: "Got it! Looking great, I'll review and test right away.",
+        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      };
+
+      setMessagesByChat((prev) => ({
+        ...prev,
+        [selectedChatId]: [...(prev[selectedChatId] || []), autoReply],
+      }));
+    }, 1200);
   };
 
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      sendMessage();
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
     }
   };
 
   return (
     <div className="chat-page">
-      {/* ================= LEFT SIDEBAR ================= */}
+      {/* LEFT CONVERSATIONS LIST */}
       <aside className="chat-sidebar">
         <div className="sidebar-header">
           <div>
             <div className="section-kicker">COLLABORATION</div>
             <h1>Messages</h1>
           </div>
-
-          <button className="new-chat-btn" title="New conversation">
-            +
-          </button>
         </div>
 
         <div className="conversation-search">
-          <span>⌕</span>
+          <Search size={16} />
           <input
             type="text"
-            placeholder="Search conversations..."
+            placeholder="Search messages..."
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
@@ -214,33 +223,31 @@ function Chat() {
         </div>
 
         <div className="conversation-list">
-          {filteredConversations.map((conversation) => (
+          {filteredConversations.map((c) => (
             <button
-              key={conversation.id}
-              className={`conversation-item ${
-                selectedChat === conversation.id ? "selected" : ""
-              }`}
-              onClick={() => setSelectedChat(conversation.id)}
+              key={c.id}
+              className={`conversation-item ${selectedChatId === c.id ? "selected" : ""}`}
+              onClick={() => {
+                setSelectedChatId(c.id);
+                // Mark unread as read
+                setConversations((prev) =>
+                  prev.map((conv) => (conv.id === c.id ? { ...conv, unread: 0 } : conv))
+                );
+              }}
             >
-              <div className={`conversation-avatar ${conversation.color}`}>
-                {conversation.short}
+              <div className={`conversation-avatar ${c.color}`}>
+                {c.short}
                 <span className="online-dot" />
               </div>
 
               <div className="conversation-content">
                 <div className="conversation-top">
-                  <strong>{conversation.name}</strong>
-                  <span>{conversation.time}</span>
+                  <strong>{c.name}</strong>
+                  <span>{c.time}</span>
                 </div>
-
                 <div className="conversation-bottom">
-                  <p>{conversation.preview}</p>
-
-                  {conversation.unread > 0 && (
-                    <span className="unread-count">
-                      {conversation.unread}
-                    </span>
-                  )}
+                  <p>{c.preview}</p>
+                  {c.unread > 0 && <span className="unread-count">{c.unread}</span>}
                 </div>
               </div>
             </button>
@@ -248,68 +255,48 @@ function Chat() {
         </div>
 
         <div className="sidebar-user">
-          <div className="user-avatar">S</div>
-
+          <div className="user-avatar">{currentUser?.firstName?.charAt(0) || "S"}</div>
           <div>
-            <strong>Sanika Haridas</strong>
-            <span>Online</span>
+            <strong>{currentUser?.fullName}</strong>
+            <span>Active in Workspace</span>
           </div>
-
           <span className="user-online">●</span>
         </div>
       </aside>
 
-      {/* ================= CENTER CHAT ================= */}
+      {/* CENTER CHAT MAIN */}
       <main className="chat-main">
-        {/* Header */}
+        {/* HEADER */}
         <header className="chat-header">
           <div className="chat-title-area">
             <div className="large-chat-avatar">
-              {currentConversation?.short || "AI"}
+              {activeChat?.short || "AI"}
               <span className="online-dot" />
             </div>
-
             <div>
-              <h2>{currentConversation?.name || "AI Study Assistant"}</h2>
-              <span>♧ 4 members</span>
+              <h2>{activeChat?.name || "Chat"}</h2>
+              <span>👥 {activeChat?.members?.length || 4} Squad Members</span>
             </div>
           </div>
 
           <div className="chat-header-actions">
-            <button title="Call">☎</button>
-            <button title="Video call">▣</button>
-            <button title="Members">♧</button>
-
-            <div className="more-wrapper">
-              <button
-                title="More"
-                onClick={() => setShowMenu((prev) => !prev)}
-              >
-                ⋮
-              </button>
-
-              {showMenu && (
-                <div className="chat-more-menu">
-                  <button>Mute notifications</button>
-                  <button>Search messages</button>
-                  <button>Leave conversation</button>
-                </div>
-              )}
-            </div>
+            <button
+              onClick={() => setShowRightSidebar(!showRightSidebar)}
+              title="Toggle Project Info"
+            >
+              <UsersIcon size={18} />
+            </button>
           </div>
         </header>
 
-        {/* Messages area */}
+        {/* MESSAGES LIST */}
         <section className="messages-area">
           <div className="project-banner">
             <div className="project-banner-icon">#</div>
-
             <div className="project-banner-content">
-              <strong>AI Study Assistant</strong>
-              <span>Project collaboration channel</span>
+              <strong>{activeChat?.name}</strong>
+              <span>Encrypted Hackathon Team Channel</span>
             </div>
-
-            <button>View Project</button>
           </div>
 
           <div className="today-divider">
@@ -319,37 +306,22 @@ function Chat() {
           </div>
 
           <div className="messages-list">
-            {messages.map((item) => (
+            {messages.map((m) => (
               <div
-                key={item.id}
-                className={`message-row ${
-                  item.type === "sent" ? "sent-row" : "received-row"
-                }`}
+                key={m.id}
+                className={`message-row ${m.type === "sent" ? "sent-row" : "received-row"}`}
               >
-                {item.type === "received" && (
-                  <div className="message-avatar">{item.short}</div>
+                {m.type === "received" && (
+                  <div className="message-avatar">{m.short}</div>
                 )}
-
                 <div className="message-block">
-                  <span className="message-sender">{item.sender}</span>
-
-                  <div
-                    className={`message-bubble ${
-                      item.type === "sent" ? "sent-bubble" : "received-bubble"
-                    }`}
-                  >
-                    {item.text}
+                  <span className="message-sender">{m.sender}</span>
+                  <div className={`message-bubble ${m.type === "sent" ? "sent-bubble" : "received-bubble"}`}>
+                    {m.text}
                   </div>
-
-                  <div
-                    className={`message-time ${
-                      item.type === "sent" ? "sent-time" : ""
-                    }`}
-                  >
-                    {item.time}
-                    {item.type === "sent" && (
-                      <span className="message-check">✓✓</span>
-                    )}
+                  <div className={`message-time ${m.type === "sent" ? "sent-time" : ""}`}>
+                    {m.time}
+                    {m.type === "sent" && <CheckCheck size={14} style={{ color: "#38bdf8", marginLeft: "4px" }} />}
                   </div>
                 </div>
               </div>
@@ -357,127 +329,59 @@ function Chat() {
           </div>
         </section>
 
-        {/* Bottom tools + composer */}
+        {/* COMPOSER */}
         <div className="chat-composer-wrapper">
-          <div className="composer-tools">
-            <button>▧ Share task</button>
-            <button>&lt;/&gt; Share code</button>
-            <button>▧ Share design</button>
-          </div>
-
           <div className="composer">
-            <button className="attach-btn" title="Attach file">
-              ♧
-            </button>
-
             <textarea
-              value={message}
-              onChange={(event) => setMessage(event.target.value)}
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={`Message ${currentConversation?.name || "AI Study Assistant"}...`}
+              placeholder={`Message ${activeChat?.name}...`}
               rows="1"
             />
 
-            <button className="emoji-btn" title="Emoji">
-              ☺
-            </button>
-
             <button
               className="send-btn"
-              onClick={sendMessage}
+              onClick={handleSendMessage}
               title="Send message"
             >
-              ➤
+              <Send size={16} />
             </button>
           </div>
         </div>
       </main>
 
-      {/* ================= RIGHT PROJECT PANEL ================= */}
-      <aside className="project-sidebar">
+      {/* RIGHT SIDEBAR (PROJECT & SQUAD DETAILS) */}
+      <aside className={`project-sidebar ${showRightSidebar ? "open" : ""}`}>
         <div className="project-sidebar-header">
-          <span>PROJECT</span>
-
-          <button>⋮</button>
+          <span>PROJECT WORKSPACE</span>
         </div>
 
         <div className="project-icon">&lt;/&gt;</div>
-
-        <h2>AI Study Assistant</h2>
-        <p>Team workspace for project collaboration.</p>
+        <h2>{activeChat?.name}</h2>
+        <p>Live collaborative room for sprint execution.</p>
 
         <div className="project-divider" />
 
         <section className="project-section">
           <div className="section-title-row">
-            <h3>Team Members</h3>
-            <span>4</span>
+            <h3>Squad Members</h3>
+            <span>{teamMembers.length}</span>
           </div>
 
           <div className="members-list">
-            {members.map((member) => (
-              <div className="member-item" key={member.name}>
+            {teamMembers.map((member) => (
+              <div className="member-item" key={member.id}>
                 <div className="member-avatar">
-                  {member.short}
-                  {member.online && <span className="member-online" />}
+                  {member.letter || member.name.charAt(0)}
+                  <span className="member-online" />
                 </div>
-
                 <div>
                   <strong>{member.name}</strong>
                   <span>{member.role}</span>
                 </div>
               </div>
             ))}
-          </div>
-        </section>
-
-        <div className="project-divider" />
-
-        <section className="project-section">
-          <div className="section-title-row">
-            <h3>Shared Files</h3>
-            <button className="view-all">View all</button>
-          </div>
-
-          <div className="shared-files">
-            {files.map((file) => (
-              <button className="file-card" key={file.name}>
-                <div className={`file-icon ${file.type}`}>
-                  {file.type === "pdf" ? "▤" : "</>"}
-                </div>
-
-                <div>
-                  <strong>{file.name}</strong>
-                  <span>{file.size}</span>
-                </div>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <div className="project-divider" />
-
-        <section className="project-section">
-          <div className="section-title-row">
-            <h3>Project Tasks</h3>
-            <span>3</span>
-          </div>
-
-          <div className="task-list">
-            <label className="task-item completed">
-              <input type="checkbox" defaultChecked />
-              <span>Setup authentication API</span>
-            </label>
-
-            <label className="task-item">
-              <input type="checkbox" />
-              <span>Connect frontend login flow</span>
-            </label>
-
-            <label className="task-item">
-              <input type="checkbox" />
-              <span>Review dashboard components</span>
-            </label>
           </div>
         </section>
       </aside>
